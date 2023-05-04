@@ -1,5 +1,5 @@
 import { useState, useEffect, Fragment, useContext } from 'react';
-import { getProjectDocument, getBeneficiaryDocuments, updateProjectDocument, getBeneficiaryDocument, updateBeneficiariesLast, getBeneficiaries } from "../utils/firebase";
+import { getProjectDocument, getBeneficiaryDocuments, updateProjectDocument, getBeneficiaryDocument, updateBeneficiariesLast, getBeneficiaries, createLog } from "../utils/firebase";
 import { useParams, useNavigate } from 'react-router-dom'
 import Button from '../components/button';
 import ProjectBeneficiaryItem from '../components/project-beneficiary-item';
@@ -24,7 +24,7 @@ const Project = () => {
     const { currentUser } = useContext(UserContext);
     const { id } = useParams();
     const [project, setProject] = useState(defaultProject);
-    const { title, barangay, municipality, province, beneficiaries, budget, days, status, startedDate, dailyWage } = project;
+    const { title, barangay, municipality, province, beneficiaries, budget, days, status, startedDate, dailyWage, district } = project;
     const navigate = useNavigate();
     const [beneficiariesList, setBeneficiariesList = () => []] = useState([]);
     const [allBeneficiaries, setAllBeneficiaries = () => []] = useState([]);
@@ -213,6 +213,9 @@ const Project = () => {
                 const response = await updateProjectDocument(id, {selected, startedDate, status: "ongoing"});
     
                 if (response === "success") {
+                    const log = {"action": "Updated a project", "id": project.id, "type" : "project", "by" : currentUser.uid}
+                    await createLog(log);
+
                     setBeneficiariesList(beneficiariesList.filter(beneficiary => selected.includes(beneficiary.id)));
                     setProject({...project, status: "ongoing", startedDate, selected})
                 } else {
@@ -274,6 +277,9 @@ const Project = () => {
         const res = await updateProjectDocument(project.id, {"status": "deleted"});
         setConfirm(false);
         if (res === "success") {
+            const log = {"action": "Deleted a project", "id": project.id, "type" : "project", "by" : currentUser.uid}
+            await createLog(log);
+
             navigate("/projects/" + project.status);
         } else {
             setModal(res);
@@ -320,7 +326,7 @@ const Project = () => {
                 {currentUser.data.type === "superadmin" ?
                 <div className='is-pulled-right'><Button additionalClasses="block mr-3" type="button" onClick={onEditHandler}>Edit</Button>
                 <Button additionalClasses="block is-danger" type="button" onClick={() => {setConfirm(true)}}>Delete</Button></div> : ""}</h2>
-                <p className='block'>{barangay + ", " + municipality + ", " + province}</p>
+                <p className='block'>{barangay.length > 0 ? barangay.join(" - ") : municipality.length > 0 ? municipality.join(", ") : district}</p>
                 <div className="mt-3">
                     <span className="icon-text">
                         <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="9" r="4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></circle><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 19c0-3.314-3.134-6-7-6s-7 2.686-7 6m13-6a4 4 0 1 0-3-6.646"></path><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M22 19c0-3.314-3.134-6-7-6-.807 0-2.103-.293-3-1.235"></path></svg></span> 

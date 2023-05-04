@@ -1,15 +1,17 @@
-import { signInWithGooglePopup, signInWithGoogleRedirect, auth, signInUserWithEmailAndPassword, resetPassword, updateUserPassword } from '../utils/firebase';
+import { signInWithGooglePopup, signInWithGoogleRedirect, auth, signInUserWithEmailAndPassword, resetPassword, updateUserPassword, createLog } from '../utils/firebase';
 import { getRedirectResult } from 'firebase/auth';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import FormInput from '../components/form-input';
 import Button from '../components/button';
 import {useNavigate} from 'react-router-dom';
+import { UserContext } from "../context/user-context";
 
 const ChangePassword = () => {
     const navigate = useNavigate();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [modal, setModal] = useState("");
+    const { currentUser } = useContext(UserContext);
 
     const handleSubmit = async(event) => {
         event.preventDefault();
@@ -25,6 +27,9 @@ const ChangePassword = () => {
         const res = await updateUserPassword(password);
         setModal(res);
         if (res === "success") {
+            const log = {"action": "User updated password", "id": currentUser.uid, "type" : "account", "by" : currentUser.uid}
+            await createLog(log);
+
             setPassword("");
             setConfirmPassword("");
         }

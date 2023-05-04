@@ -4,7 +4,7 @@ import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate} from 'react-router-dom';
 import { StaticContext } from "../context/static-context";
-import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createUserDocument } from '../utils/firebase';
+import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createLog, createUserDocument } from '../utils/firebase';
 
 const defaultFormFields = {
     firstName: '',
@@ -172,6 +172,10 @@ const Register = () => {
             delete formFields.confirmPassword;
 
             await createUserDocument(user, {...formFields, uid});
+            
+            const log = {"action": "A beneficiary registered an account", "id": user.uid, "type" : "beneficiary", "by" : user.uid}
+            await createLog(log);
+
             navigate("/beneficiaries/" + user.uid);
         } catch (error) {
             if (error.code == "auth/email-already-in-use") {

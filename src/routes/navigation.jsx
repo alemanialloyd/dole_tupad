@@ -1,7 +1,7 @@
 import logo from '../logo.png';
 import { Fragment, useContext, useState } from "react";
 import { UserContext } from "../context/user-context";
-import { signOutUser } from "../utils/firebase";
+import { createLog, signOutUser } from "../utils/firebase";
 import {useNavigate} from 'react-router-dom';
 import { useLocation } from 'react-router-dom'
 import { Outlet } from "react-router-dom";
@@ -13,7 +13,10 @@ const Navigation = () => {
   const [toggle, setToggle] = useState(false);
   const [modalSignOut, setModalSignOut] = useState("");
 
-  const signOutHandler = () => {
+  const signOutHandler = async() => {
+    const log = {"action": "User signed out", "id": currentUser.uid, "type" : "account", "by" : currentUser.uid}
+    await createLog(log);
+
     setModalSignOut("");
     signOutUser();
     navigate('/');
@@ -43,7 +46,7 @@ const Navigation = () => {
                     </header>
                     <footer className="modal-card-foot has-text-centered is-block pb-5">
                         <button className="button" onClick={() => setModalSignOut("")}>No</button>
-                        <button className="button" onClick={signOutHandler}>Yes</button>
+                        <button className="button is-success" onClick={signOutHandler}>Yes</button>
                     </footer>
                 </div>
             </div> : ""}
@@ -66,7 +69,7 @@ const Navigation = () => {
   </div>
 
   {currentUser ? <div id="navbarBasicExample" className={`navbar-menu ${toggle ? "is-active" : ""}`}>
-    <div className="navbar-end">
+    <div className="navbar-start">
 
       {currentUser.data.type === "superadmin" ?
       <div className="navbar-item has-dropdown is-hoverable">
@@ -100,7 +103,7 @@ const Navigation = () => {
             Approved
           </a>
           <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/disapproved")}>
-            Dispproved
+            Disapproved
           </a>
           <hr className="navbar-divider"/>
         <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/new")}>
@@ -144,7 +147,15 @@ const Navigation = () => {
             Change Password
           </a>
 
-      <div className="navbar-item">
+          {currentUser.data.type === "superadmin" ? <a className="navbar-item" onClick={() => onNavigate("/activity-logs")}>
+            Activity Logs
+          </a> : ""}
+    </div>
+
+    <div className="navbar-end">
+      
+    <div className="navbar-item has-text-weight-medium is-size-5">{currentUser.data.type === "superadmin" ? "Super Admin" : currentUser.data.firstName + " " + currentUser.data.lastName}</div>
+    <div className="navbar-item">
         <div className="buttons">
           <a className="button is-info" onClick={() => setModalSignOut("Are you sure you want to sign out?")}>
             Sign out

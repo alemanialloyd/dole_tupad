@@ -1,8 +1,8 @@
 import Button from "./button";
 import {useNavigate} from 'react-router-dom';
 
-const ProjectItem = ({text, project, additionalClasses}) => {
-    const { title, barangay, municipality, province, beneficiaries, budget, days, dailyWage } = project;
+const ProjectItem = ({text, project, additionalClasses, all}) => {
+    const { title, barangay, municipality, province, beneficiaries, budget, days, dailyWage, district, status } = project;
     const navigate = useNavigate();
 
     const onClickHandler = () => {
@@ -18,8 +18,9 @@ const ProjectItem = ({text, project, additionalClasses}) => {
             <div className="card columns py-6 is-vcentered" style={{height: 350 + "px"}}>
                 <div className="card-content column">
                     <div className="content has-text-centered px-4 py-4">
+                    {all ? <span class={`tag ${status === "pending" ? "is-warning" : status === "finished" ? "is-success" : "is-info"}`}>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()}</span> : ""}
                             <h1 className='is-size-3'>{title}</h1>
-                            {barangay + ", " + municipality + ", " + province}
+                            {barangay.length > 0 ? barangay.join(" - ") : municipality.length > 0 ? municipality.join(", ") : district}
                             <div className="mt-3">
                                 <span className="icon-text">
                                     <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="9" r="4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></circle><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 19c0-3.314-3.134-6-7-6s-7 2.686-7 6m13-6a4 4 0 1 0-3-6.646"></path><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M22 19c0-3.314-3.134-6-7-6-.807 0-2.103-.293-3-1.235"></path></svg></span> 

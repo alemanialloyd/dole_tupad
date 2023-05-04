@@ -4,7 +4,7 @@ import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate} from 'react-router-dom';
 import { UserContext } from "../context/user-context";
-import { createAuthUserWithEmailAndPassword, createUserDocument, signInUserWithEmailAndPassword, signOutUser } from '../utils/firebase';
+import { createAuthUserWithEmailAndPassword, createLog, createUserDocument, signInUserWithEmailAndPassword, signOutUser } from '../utils/firebase';
 
 const defaultFormFields = {
     firstName: '',
@@ -18,7 +18,8 @@ const defaultFormFields = {
     emailAddress: '',
     contactNumber: '',
     type: 'admin',
-    password: 'doletupad'
+    password: 'doletupad',
+    status: 'active'
 }
 
 const AccountNew = () => {
@@ -71,6 +72,10 @@ const AccountNew = () => {
             await createUserDocument(user, formFields);
             
             await signInUserWithEmailAndPassword(ema, pas);
+            
+            const log = {"action": "Created new admin account", "id": user.uid, "type" : "admin", "by" : currentUser.uid}
+            await createLog(log);
+
             navigate("/accounts");
         } catch (error) {
             if (error.code == "auth/email-already-in-use") {

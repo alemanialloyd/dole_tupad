@@ -14,9 +14,9 @@ const PayrollItem = ({ index, beneficiary, dailyWage, value }) => {
             <td>{firstName}</td>
             <td>{middleName}</td>
             <td>{barangay + ", " + municipality + ", " + province}</td>
-            <td>P {parseInt(dailyWage).toLocaleString()}</td>
-            <td>{value}</td>
-            <td>P {total.toLocaleString()}</td>
+            <td className="has-text-right">P {parseInt(dailyWage).toLocaleString()}</td>
+            <td className="has-text-right">{value}</td>
+            <td className="has-text-right">P {total.toLocaleString()}</td>
             <td className="no-border-right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
             <td className="no-border-left">{index}</td>

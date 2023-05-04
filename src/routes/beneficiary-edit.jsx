@@ -4,7 +4,8 @@ import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate, useParams} from 'react-router-dom';
 import { StaticContext } from "../context/static-context";
-import { getBeneficiaryDocument, updateBeneficiaryDocument } from '../utils/firebase';
+import { createLog, getBeneficiaryDocument, updateBeneficiaryDocument } from '../utils/firebase';
+import { UserContext } from "../context/user-context";
 
 const defaultFormFields = {
     firstName: '',
@@ -40,6 +41,7 @@ const BeneficiaryEdit = () => {
     const { id } = useParams();
     const { municipalities, bicol, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, talisay, vinzons } = useContext(StaticContext);
     const navigate = useNavigate();
+    const { currentUser } = useContext(UserContext);
 
     const [barangays, setbarangays] = useState([]);
     const [formFields, setFormFields] = useState(defaultFormFields);
@@ -200,6 +202,9 @@ const BeneficiaryEdit = () => {
         const uid = lastName.toLowerCase().replaceAll(" ", "") + firstName.toLowerCase().replaceAll(" ", "") + birthDate.replaceAll("-", "");
         const response = await updateBeneficiaryDocument(id, {...formFields, uid});
         if (response === "success") {
+            const log = {"action": "Updated a beneficiary account", "id": id, "type" : "beneficiary", "by" : currentUser.uid}
+            await createLog(log);
+
             navigate("/beneficiaries/" + id);
         } else {
             setModal(response);

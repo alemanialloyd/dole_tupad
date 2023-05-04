@@ -25,6 +25,7 @@ import Register from './routes/register';
 import ChangePassword from './routes/change-password';
 import AccountDeleted from './routes/account-deleted';
 import SummaryReport from './routes/summary-report';
+import ActivityLogs from './routes/activity-logs';
 import BeneficiariesDisapproved from './routes/beneficiaries-disapproved';
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
         <Route path="/beneficiaries/new" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <BeneficiaryNew/> : ""}/>
         <Route path="/beneficiaries/for-approval" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <ForApproval/> : ""}/>
         <Route path="/beneficiaries/disapproved" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <BeneficiariesDisapproved/> : ""}/>
+        <Route path="/activity-logs" element={currentUser ? currentUser.data.type === "superadmin" ? <ActivityLogs/> : "" : ""}/>
         <Route path="/account-deleted" element={<AccountDeleted/>}/>
       </Route>
         <Route path="/payroll/:id" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <Payroll/> : ""}/>

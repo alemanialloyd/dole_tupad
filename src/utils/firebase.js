@@ -127,6 +127,20 @@ const firebaseConfig = {
     return response;
   }
 
+  export const createLog = async (log) => {
+    const ref = collection(db, 'Logs');
+
+    try {
+      const created = new Date();
+      await addDoc(ref, {
+        created,
+          ...log
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   export const getBeneficiaryDocuments = async (status, municipality, barangay) => {
     const docRef = collection(db, "Users");
     const docs = [];
@@ -138,6 +152,27 @@ const firebaseConfig = {
         q = query(docRef, where("status", "==", status), where("municipality", "==", municipality), where("barangay", "==", barangay), orderBy("created", "desc"));
       }
     }
+
+    try {
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          data["id"] = doc.id;
+          docs.push(data);
+      });
+
+    } catch (error) {
+      console.log("error", error.message);
+    }
+
+    return docs;
+  }
+
+  export const getUsers = async () => {
+    const docRef = collection(db, "Users");
+    const docs = [];
+    var q = query(docRef, orderBy("emailAddress", "desc"));
 
     try {
       const querySnapshot = await getDocs(q);
@@ -205,7 +240,7 @@ const firebaseConfig = {
   export const getAccountDocuments = async () => {
     const docRef = collection(db, "Users");
     const docs = [];
-    var q = query(docRef, where("type", "==", "admin"), orderBy("lastName", "asc"), orderBy("firstName", "asc"));
+    var q = query(docRef, where("type", "==", "admin"), where("status", "==", "active"), orderBy("lastName", "asc"), orderBy("firstName", "asc"));
 
     try {
       const querySnapshot = await getDocs(q);
@@ -213,6 +248,27 @@ const firebaseConfig = {
       querySnapshot.forEach((doc) => {
           const data = doc.data();
           data["id"] = doc.id;
+          docs.push(data);
+      });
+
+    } catch (error) {
+      console.log("error", error.message);
+    }
+
+    return docs;
+  }
+
+  export const getLogs = async () => {
+    const docRef = collection(db, "Logs");
+    const docs = [];
+    var q = query(docRef, orderBy("created", "desc"));
+
+    try {
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          // data["id"] = doc.id;
           docs.push(data);
       });
 

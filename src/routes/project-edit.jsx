@@ -4,7 +4,8 @@ import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate, useParams} from 'react-router-dom';
 import { StaticContext } from "../context/static-context";
-import { createProjectDocument, getProjectDocument, getValues, updateProjectDocument, updateValues } from '../utils/firebase';
+import { createLog, createProjectDocument, getProjectDocument, getValues, updateProjectDocument, updateValues } from '../utils/firebase';
+import { UserContext } from "../context/user-context";
 
 const defaultFormFields = {
     province: 'Camarines Norte',
@@ -21,6 +22,7 @@ const defaultFormFields = {
 }
 
 const ProjectNew = () => {
+    const { currentUser } = useContext(UserContext);
     const { id } = useParams();
     const { municipalities, bicol, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, tagalog, talisay, vinzons } = useContext(StaticContext);
     const navigate = useNavigate();
@@ -156,6 +158,9 @@ const ProjectNew = () => {
     const updateProject = async () => {
         const response = await updateProjectDocument(id, formFields);
         if (response === "success") {
+            const log = {"action": "Updated a project", "id": id, "type" : "project", "by" : currentUser.uid}
+            await createLog(log);
+
             navigate("/projects/" + id);
         } else {
             setModal(response);
@@ -203,12 +208,12 @@ const ProjectNew = () => {
             <p className='block'>Fill out required fields.</p>
             <form onSubmit={handleSubmit}>
                 <div className='columns is-multiline'>
-                    <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-6"/>
-                    <FormSelect options={["1st District", "2nd District"]} type="text" required id="district" onChange={handleChange} value={district} label="District" additionalClasses="column is-6"/>
+                    <FormSelect disabled={status !== "pending"}  options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province *" additionalClasses="column is-6"/>
+                    <FormSelect disabled={status !== "pending"}  options={["1st District", "2nd District"]} type="text" required id="district" onChange={handleChange} value={district} label="District *" additionalClasses="column is-6"/>
                     {/* <FormSelect options={municipalities} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-6"/> */}
                     {/* <FormSelect options={barangays} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-6"/> */}
                     
-                    <div className="dropdown column is-6">
+                    <div className={`dropdown column is-6 ${status !== "pending" ? "is-disabled" : ""}`}>
                             <label>Municipality</label>
                         <div className="dropdown-trigger">
                             <button type='button' className="button is-fullwidth">
@@ -231,7 +236,7 @@ const ProjectNew = () => {
                         </div>
                     </div>
 
-                    <div className="dropdown column is-6">
+                    <div className={`dropdown column is-6 ${status !== "pending" ? "is-disabled" : ""}`}>
                             <label>Barangay</label>
                         <div className="dropdown-trigger">
                             <button type='button' className="button is-fullwidth">
@@ -269,11 +274,11 @@ const ProjectNew = () => {
                         </div>
                     </div>
 
-                    <FormInput type="text" required id="title" value={title} onChange={handleChange} label="Project Title" additionalClasses="column is-6"/>
-                    <FormInput type="number" disabled={status !== "pending"} step="0.01" required id="budget" value={budget} onChange={handleChange} label="Total Budget" additionalClasses="column is-6"/>
-                    <FormInput type="number" disabled={status !== "pending"} required id="days" value={days} onChange={handleChange} label="Number of Days" additionalClasses="column is-4"/>
-                    <FormInput type="number" disabled={status !== "pending"} step="0.01" required id="dailyWage" value={dailyWage} onChange={handleChange} label="Daily Wage" additionalClasses="column is-4"/>
-                    <FormInput type="number" disabled={status !== "pending"} required id="beneficiaries" value={beneficiaries} max={max} min="1" onChange={handleChange} label={`Number of Beneficiaries (max = ${max})`} additionalClasses="column is-4"/>
+                    <FormInput type="text" required id="title" value={title} onChange={handleChange} label="Project Title *" additionalClasses="column is-6"/>
+                    <FormInput type="number" disabled={status !== "pending"} step="0.01" required id="budget" value={budget} onChange={handleChange} label="Total Budget *" additionalClasses="column is-6"/>
+                    <FormInput type="number" disabled={status !== "pending"} required id="days" value={days} onChange={handleChange} label="Number of Days *" additionalClasses="column is-4"/>
+                    <FormInput type="number" disabled={status !== "pending"} step="0.01" required id="dailyWage" value={dailyWage} onChange={handleChange} label="Daily Wage *" additionalClasses="column is-4"/>
+                    <FormInput type="number" disabled={status !== "pending"} required id="beneficiaries" value={beneficiaries} max={max} min="1" onChange={handleChange} label={`Number of Beneficiaries (max = ${max}) *`} additionalClasses="column is-4"/>
                 </div>
                 <Button type="submit" additionalClasses="is-info block">Save</Button>
                 </form>

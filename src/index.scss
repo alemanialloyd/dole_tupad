@@ -133,6 +133,20 @@ input[type="date"] {
     }
   }
 
+  &.is-disabled {
+    .dropdown-trigger {
+      cursor: not-allowed;
+
+      button {
+        pointer-events: none;
+        background-color: #f5f5f5;
+        border-color: #f5f5f5;
+        box-shadow: none;
+        color: #7a7a7a;
+      }
+    }
+  }
+
   .dropdown-content {
     max-height: 500px;
     overflow-y: auto;

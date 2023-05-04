@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import FormInput from '../components/form-input';
 import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate, useParams} from 'react-router-dom';
-import { getUserDocument, updateUserDocument } from '../utils/firebase';
+import { createLog, getUserDocument, updateUserDocument } from '../utils/firebase';
+import { UserContext } from "../context/user-context";
 
 const defaultFormFields = {
     firstName: '',
@@ -22,10 +23,12 @@ const defaultFormFields = {
 const AccountEdit = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { currentUser } = useContext(UserContext);
 
     const [formFields, setFormFields] = useState(defaultFormFields);
     const { firstName, lastName, middleName, extensionName, birthDate, gender, civilStatus, age, emailAddress, contactNumber } = formFields;
     const [modal, setModal] = useState("");
+    const [confirm, setConfirm] = useState(false);
 
     useEffect(() => {
         const getDoc = async () => {
@@ -67,9 +70,25 @@ const AccountEdit = () => {
         
         const response = await updateUserDocument(id, formFields);
         if (response === "success") {
+            const log = {"action": "Updated an admin account", "id": id, "type" : "admin", "by" : currentUser.uid}
+            await createLog(log);
+
             navigate("/accounts/");
         } else {
             setModal(response);
+        }
+    }
+
+    const onDeleteHandler = async() => {
+        const res = await updateUserDocument(id, {"status": "deleted"});
+        setConfirm(false);
+        if (res === "success") {
+            const log = {"action": "Deleted an admin account", "id": id, "type" : "admin", "by" : currentUser.uid}
+            await createLog(log);
+
+            navigate("/accounts");
+        } else {
+            setModal(res);
         }
     }
 
@@ -87,6 +106,19 @@ const AccountEdit = () => {
                 </div>
             </div> : ""}
 
+            {confirm ? <div className="modal has-text-centered is-active">
+                <div className="modal-background"></div>
+                <div className="modal-content">
+                    <header className="modal-card-head pt-6">
+                        <p className="modal-card-title">Would you like to delete admin account?</p>
+                    </header>
+                    <footer className="modal-card-foot has-text-centered is-block pb-5">
+                        <button className="button" onClick={() => {setConfirm(false)}}>No</button>
+                        <button className="button is-success" onClick={onDeleteHandler}>Yes</button>
+                    </footer>
+                </div>
+            </div> : ""}
+
             <nav className="breadcrumb mb-6">
                 <ul>
                     <li><a onClick={() => {navigate("/")}}>Home</a></li>
@@ -94,7 +126,8 @@ const AccountEdit = () => {
                 </ul>
             </nav>
 
-            <h2 className='is-size-4 has-text-weight-bold'>Edit Account</h2>
+            <h2 className='is-size-4 has-text-weight-bold'>Edit Account
+            <Button additionalClasses="block is-danger is-pulled-right" type="button" onClick={() => {setConfirm(true)}}>Delete</Button></h2>
             <p className='block'>Fill out required fields.</p>
             <form onSubmit={handleSubmit}>
                 <div className='columns is-multiline'>

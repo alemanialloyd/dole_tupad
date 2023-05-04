@@ -1,4 +1,4 @@
-import { signInWithGooglePopup, signInWithGoogleRedirect, auth, signInUserWithEmailAndPassword } from '../utils/firebase';
+import { signInWithGooglePopup, signInWithGoogleRedirect, auth, signInUserWithEmailAndPassword, createLog } from '../utils/firebase';
 import { getRedirectResult } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import FormInput from '../components/form-input';
@@ -31,9 +31,12 @@ const SignInForm = () => {
         event.preventDefault();
 
         try {
-            await signInUserWithEmailAndPassword(email, password);
+            const { user } = await signInUserWithEmailAndPassword(email, password);
             resetFormFields();
             
+            const log = {"action": "User signed in", "id": user.uid, "type" : "account", "by" : user.uid}
+            await createLog(log);
+
             navigate('/');
         } catch (error) {
             switch(error.code) {

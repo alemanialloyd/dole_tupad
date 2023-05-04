@@ -10,7 +10,7 @@ const BeneficiaryItem = ({ beneficiary, index, handleApprove, created }) => {
     var reg = null;
     if (created) {
         reg = new Date(1970, 0, 1);
-        reg.setSeconds(created.seconds);
+        reg.setSeconds(created.seconds + 28800);
     }
 
     const onClickHandler = () => {

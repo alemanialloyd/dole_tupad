@@ -62,16 +62,18 @@ const SummaryReport = () => {
                                 <th>No. of Days</th>
                                 <th>No. of Beneficiaries</th>
                                 <th>Sub Total</th>
-                                <th>PPE</th>
-                                <th>Insurance</th>
-                                <th>Total</th>
+                                <th>PPE Total</th>
+                                <th>Insurance Total</th>
+                                <th>Grand Total</th>
+                                <th>Budget</th>
+                                <th>Remaining</th>
                             </tr>
                         </thead>
                         
                         <tbody>
                         {projects.map((project, index) => {
                             const {dailyWage, days, beneficiaries} = project;
-                                total += (parseInt(dailyWage) * parseInt(days) * parseInt(beneficiaries)) + 356;
+                                total += (parseInt(dailyWage) * parseInt(days) * parseInt(beneficiaries)) + (parseInt(beneficiaries) * 356);
                             return (
                                 <SummaryReportItem  key={project.id} project={project} index={index + 1}/>
                             )
@@ -80,8 +82,9 @@ const SummaryReport = () => {
 
                         <tfoot>
                             <tr>
-                                <th colSpan="10" className='has-text-centered'></th>
-                                <th>P {total.toLocaleString()}</th>
+                                <th colSpan="10"></th>
+                                <th className="has-text-right">P {total.toLocaleString()}</th>
+                                <th colSpan="2"></th>
                             </tr>
                         </tfoot>
                     </table>

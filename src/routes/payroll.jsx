@@ -98,8 +98,11 @@ const Payroll = () => {
                 <p className='has-text-centered has-text-weight-medium'>Regional Office No. 5</p>
 
                 <p><span style={{width: 200 + "px", display: "inline-block"}}>Province:</span><span className='has-text-weight-medium with-border-bottom'>{project.province}</span></p>
-                <p><span style={{width: 200 + "px", display: "inline-block"}}>Municipality:</span><span className='has-text-weight-medium with-border-bottom'>{project.municipality}</span></p>
-                <p><span style={{width: 200 + "px", display: "inline-block"}}>Barangay:</span><span className='has-text-weight-medium with-border-bottom'>{project.barangay}</span></p>
+                <p><span style={{width: 200 + "px", display: "inline-block"}}>Municipality:</span><span className='has-text-weight-medium with-border-bottom'>{project.municipality && project.municipality.length > 0 ? project.municipality.join(", ") : project.district}</span></p>
+                <p><span style={{width: 200 + "px", display: "inline-block"}}>Barangay:</span><span className='has-text-weight-medium with-border-bottom'>{project.barangay && project.barangay.length > 0 ? project.barangay.join(", ").replaceAll(", Basud", "").replaceAll(", Daet", "")
+                                .replaceAll(", Capalonga", "").replaceAll(", Jose Panganiban", "").replaceAll(", Mercedes", "").replaceAll(", Labo", "")
+                                .replaceAll(", Paracale", "").replaceAll(", Sta Elena", "").replaceAll(", San Vicente", "").replaceAll(", San Lorenzo Ruiz", "")
+                                .replaceAll(", Talisay", "").replaceAll(", Vinzons", "") : "-"}</span></p>
                 <div className="table-container mt-6">
                     <table className="table is-fullwidth is-bordered">
                         <thead>
@@ -127,7 +130,7 @@ const Payroll = () => {
                         <tfoot>
                             <tr>
                                 <th colSpan="8" className='has-text-centered'></th>
-                                <th>P {total.toLocaleString()}</th>
+                                <th className="has-text-right">P {total.toLocaleString()}</th>
                                 <th colSpan="2"></th>
                             </tr>
                         </tfoot>

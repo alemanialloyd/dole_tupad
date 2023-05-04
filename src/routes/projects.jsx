@@ -117,7 +117,7 @@ const Projects = () => {
             {projects.length > 0 ? 
             <Fragment>
                 {status === "finished" ? <div className="notification is-info py-5 mt-5">
-                Summary report is available for printing. <button className='button is-pulled-right is-small' onClick={() => {navigate("/summary-report", {state: {projects : projects}})}}>View</button>
+                Summary report is available for printing. <button className='button is-pulled-right is-small' onClick={() => {navigate("/summary-report", {state: {projects : projects}})}}>View Report</button>
                 </div> : ""}
                 <div className="mt-6 columns is-multiline">
                 {projects.map((project, index) => {

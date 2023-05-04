@@ -1,6 +1,6 @@
 import BeneficiaryItem from "../components/beneficiary-item"
 import { useContext, useState, useEffect } from 'react';
-import { getBeneficiaryDocuments, updateBeneficiaryDocument } from "../utils/firebase";
+import { createLog, getBeneficiaryDocuments, updateBeneficiaryDocument } from "../utils/firebase";
 import { StaticContext } from "../context/static-context";
 import FormSelect from "../components/form-select";
 import {useLocation, useNavigate} from 'react-router-dom';
@@ -33,7 +33,6 @@ const ForApproval = () => {
         async function getDocs() {
             const docs = await getBeneficiaryDocuments("for-approval", municipality, barangay);
             setAllBeneficiaries(docs);
-            console.log(docs);
         };
         getDocs();
     }, [formFields]);
@@ -126,6 +125,9 @@ const ForApproval = () => {
         const res = await updateBeneficiaryDocument(id, {"status": status});
 
         if (res === "success") {
+            const log = {"action": "Admin " + status + " an account", "id": id, "type" : "beneficiary"}
+            await createLog(log);
+
             setAllBeneficiaries(allBeneficiaries.filter((item) => {return id !== item.id}));
         } else {
             setModal(res);

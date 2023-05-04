@@ -110,7 +110,7 @@ const AllProjects = () => {
                 {projects.map((project, index) => {
                     if (index >= (page * maxDocs) && index < maxDocs + (page * maxDocs)) {
                         return (
-                            <ProjectItem text={project.status === "pending" ? "Create" : "Details"} additionalClasses="column is-4" key={project.id} project={project}/>
+                            <ProjectItem text={project.status === "pending" ? "Create" : "Details"} additionalClasses="column is-4" key={project.id} project={project} all={true}/>
                         )
                     }
                 })}

@@ -1,4 +1,4 @@
-import { signInWithGooglePopup, signInWithGoogleRedirect, auth, signInUserWithEmailAndPassword, resetPassword } from '../utils/firebase';
+import { signInWithGooglePopup, signInWithGoogleRedirect, auth, signInUserWithEmailAndPassword, resetPassword, createLog } from '../utils/firebase';
 import { getRedirectResult } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import FormInput from '../components/form-input';

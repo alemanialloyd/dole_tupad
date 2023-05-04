@@ -4,7 +4,7 @@ import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate} from 'react-router-dom';
 import { StaticContext } from "../context/static-context";
-import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createUserDocument, signInUserWithEmailAndPassword, signOutUser } from '../utils/firebase';
+import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createLog, createUserDocument, signInUserWithEmailAndPassword, signOutUser } from '../utils/firebase';
 import { signOut } from 'firebase/auth';
 import { UserContext } from "../context/user-context";
 
@@ -169,6 +169,9 @@ const BeneficiaryNew = () => {
             const { user } = await createAuthUserWithEmailAndPassword(emailAddress, password);
             await createUserDocument(user, {...formFields, uid});
             
+            const log = {"action": "Created new beneficiary account", "id": user.uid, "type" : "beneficiary", "by" : currentUser.uid}
+            await createLog(log);
+
             await signInUserWithEmailAndPassword(ema, pas);
             navigate("/beneficiaries/" + user.uid);
         } catch (error) {
