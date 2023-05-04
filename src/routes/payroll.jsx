@@ -33,8 +33,24 @@ const Payroll = () => {
         }
         selected.forEach(async(item, i) => {
             const doc = await getBeneficiaryDocument(item);
-            beneficiariesList.push(doc);
-            setBeneficiariesList([...beneficiariesList]);
+            if (doc) {
+                beneficiariesList.push(doc);
+                beneficiariesList.sort((a, b) => {
+                    const a1 = a.lastName.toLowerCase().replace(" ", "") + a.firstName.toLowerCase().replace(" ", "");
+                    const b1 = b.lastName.toLowerCase().replace(" ", "") + b.firstName.toLowerCase().replace(" ", "");
+                    console.log(a1 + "/" + b1);
+    
+                    if ( a1 < b1 ){
+                        return -1;
+                    }
+                    if ( a1 > b1 ){
+                        return 1;
+                    }
+    
+                    return 0;
+                });
+                setBeneficiariesList([...beneficiariesList]);
+            }
         });
     }, [project]);
 
@@ -72,23 +88,30 @@ const Payroll = () => {
                                     </a>
 
             <div id='print' className='mt-6'>
-                <div className='has-text-centered columns is-vcentered is-centered'>
+                {/* <div className='has-text-centered columns is-vcentered is-centered'>
                     <img src={logo} style={{height: 50 + "px"}}/>
                     <span className='is-size-4 ml-6'>DOLE - TUPAD Payroll System</span>
-                </div>
+                </div> */}
+
+                <p className='has-text-centered has-text-weight-medium'>Republic of the Philippines</p>
+                <p className='has-text-centered has-text-weight-medium'>DEPARTMENT OF LABOR AND EMPLOYMENT</p>
+                <p className='has-text-centered has-text-weight-medium'>Regional Office No. 5</p>
+
+                <p><span style={{width: 200 + "px", display: "inline-block"}}>Province:</span><span className='has-text-weight-medium with-border-bottom'>{project.province}</span></p>
+                <p><span style={{width: 200 + "px", display: "inline-block"}}>Municipality:</span><span className='has-text-weight-medium with-border-bottom'>{project.municipality}</span></p>
+                <p><span style={{width: 200 + "px", display: "inline-block"}}>Barangay:</span><span className='has-text-weight-medium with-border-bottom'>{project.barangay}</span></p>
                 <div className="table-container mt-6">
-                    <table className="table is-fullwidth is-bordered is-size-5">
+                    <table className="table is-fullwidth is-bordered">
                         <thead>
                             <tr>
                                 <th>No.</th>
-                                <th>Beneficiary Name</th>
-                                <th>Daily Wage</th>
-                                <th>Number of Days</th>
-                                <th>Gross Amount</th>
-                                <th>Less Deduction</th>
-                                <th>Net Amount</th>
-                                <th>Signature</th>
-                                <th>No.</th>
+                                <th>ID Number</th>
+                                <th colSpan="3" className='has-text-centered'>Name of Worker</th>
+                                <th className='has-text-centered'>Address</th>
+                                <th>Rate per Day</th>
+                                <th>No. of Days</th>
+                                <th>Earned for the Period</th>
+                                <th colSpan="2">Signature</th>
                             </tr>
                         </thead>
                         
@@ -103,69 +126,58 @@ const Payroll = () => {
 
                         <tfoot>
                             <tr>
-                                <th colSpan="4" className='has-text-centered'>Total</th>
-                                <th>P {total.toLocaleString()}</th>
-                                <th>P 0.00</th>
+                                <th colSpan="8" className='has-text-centered'></th>
                                 <th>P {total.toLocaleString()}</th>
                                 <th colSpan="2"></th>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
-                <div className='columns is-size-5 mt-6'>
-                    <div className='column is-5 is-offset-1'>
-                        Reviewed by:
+                
+                <div className='column is-4 mt-4'>
+                Funds Available:
                         <div className='columns mt-3 mb-6'>
-                            <div className='has-text-centered column is-4'>
-                                _____________________________<br/>
-                                Designation
+                            <div className='has-text-centered column is-6 is-offset-6'>
+                            __________________________________________<br/>
+                                Chief Accountant
                                 </div>
-
-                                <div className='has-text-centered column is-3'>
-                                ______________<br/>
-                                Date
-                            </div>
+                        </div>
+                </div>
+                        
+                <div className='columns'>
+                    <div className='column is-4'>
+                        1. I CERTIFY on my official oath that the above Payroll is correct and that the services have been duly rendered.
+                        <div className='columns mt-3 mb-6'>
+                            <div className='has-text-centered column is-6 is-offset-6'>
+                                __________________________________________<br/>
+                                Provincial Head
+                                </div>
                         </div>
 
-                        Approved by:
+                        2. Approved payable from appropriation.
                         <div className='columns mt-3'>
-                            <div className='has-text-centered column is-4'>
-                                _____________________________<br/>
-                                Designation
+                            <div className='has-text-centered column is-6 is-offset-6'>
+                            __________________________________________<br/>
+                                Regional Director
                                 </div>
-
-                                <div className='has-text-centered column is-3'>
-                                ______________<br/>
-                                Date
-                            </div>
                         </div>
                     </div>
                         
-                    <div className='column is-5 is-offset-2'>
-                    Certified Funds Available:
+                    <div className='column is-4 is-offset-4'>
+                    3. I CERTIFY on my official oath that I have processed the release of funds for the payment of saliaries of TUPAD beneficiaries and I have depositied the same to the back of ________________________.
                         <div className='columns mt-3 mb-6'>
-                            <div className='has-text-centered column is-4'>
-                                _____________________________<br/>
-                                Designation
+                            <div className='has-text-centered column is-6 is-offset-6'>
+                            __________________________________________<br/>
+                                Cashier/Treasurer
                                 </div>
-
-                                <div className='has-text-centered column is-3'>
-                                ______________<br/>
-                                Date
-                            </div>
                         </div>
 
-                        Disbursing Officer:
+                        4. I CERTIFY on my official oath that I have paid to each worker whose names appear above the amount set opposite their name.
                         <div className='columns mt-3'>
-                            <div className='has-text-centered column is-4'>
-                                _____________________________<br/>
-                                Designation
+                            <div className='has-text-centered column is-6 is-offset-6'>
+                            __________________________________________<br/>
+                                DOLE Staff
                                 </div>
-
-                                <div className='has-text-centered column is-3'>
-                                ______________<br/>
-                                Date
-                            </div>
                         </div>
                     </div>
                 </div>

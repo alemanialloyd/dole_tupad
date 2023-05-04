@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect, Fragment } from 'react';
-import { getFinishedProjects, getProjectDocuments } from "../utils/firebase";
+import { getProjectDocuments } from "../utils/firebase";
 import { StaticContext } from "../context/static-context";
 import FormSelect from "../components/form-select";
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -9,10 +9,9 @@ const defaultFormFields = {
     province: 'Camarines Norte',
     municipality: 'All',
     barangay: 'All',
-    year: 'All'
 }
 
-const Projects = () => {
+const AllProjects = () => {
     const location = useLocation();
     const { municipalities, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, talisay, vinzons } = useContext(StaticContext);
     const [projects, setProjects = () => []] = useState([]);
@@ -21,16 +20,15 @@ const Projects = () => {
     const [barangays, setbarangays] = useState([]);
     const [formFields, setFormFields] = useState(defaultFormFields);
     const {province, municipality, barangay, year} = formFields;
-    const status = location.pathname.replace("/projects/", "");
     const navigate = useNavigate();
 
     useEffect(() => {
         async function getDocs() {
-            const docs = status === "finished" ? await getFinishedProjects(year, status, municipality, barangay) : await getProjectDocuments(status, municipality, barangay);
+            const docs = await getProjectDocuments("", municipality, barangay);
             setProjects(docs);
         };
         getDocs();
-    }, [formFields, status]);
+    }, [formFields]);
 
     const handleChange = (event) => {
         const { id, value } = event.target;
@@ -89,26 +87,18 @@ const Projects = () => {
         pages.push(i);
     }
 
-    const now = new Date();
-    const years = [];
-    for (let i = 2023; i <= now.getFullYear() + 1; i++) {
-        years.push(i);
-    }
-
     return (
         <div className='column is-8 is-offset-2  my-6'>
 
         <nav className="breadcrumb mb-6">
             <ul>
                 <li><a onClick={() => {navigate("/")}}>Home</a></li>
-                <li className="is-active"><a aria-current="page">{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()} Projects</a></li>
+                <li className="is-active"><a aria-current="page">All Projects</a></li>
             </ul>
         </nav>
 
         <div className="columns is-vcentered">
-            {status === "finished" ? <Fragment><h2 className='is-size-4 has-text-weight-bold column is-4'>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()} Projects</h2>
-            <FormSelect options={["All", ...years]} type="text" required id="year" onChange={handleChange} value={year} label="Year" additionalClasses="column is-2"/></Fragment> : <h2 className='is-size-4 has-text-weight-bold column is-6'>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()} Projects</h2>}
-
+            <h2 className='is-size-4 has-text-weight-bold column is-6'>All Projects</h2>
             <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...municipalities]} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...barangays]} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-2"/>
@@ -116,14 +106,11 @@ const Projects = () => {
 
             {projects.length > 0 ? 
             <Fragment>
-                {status === "finished" ? <div className="notification is-info py-5 mt-5">
-                Summary report is available for printing. <button className='button is-pulled-right is-small' onClick={() => {navigate("/summary-report", {state: {projects : projects}})}}>View</button>
-                </div> : ""}
                 <div className="mt-6 columns is-multiline">
                 {projects.map((project, index) => {
                     if (index >= (page * maxDocs) && index < maxDocs + (page * maxDocs)) {
                         return (
-                            <ProjectItem text={status === "pending" ? "Create" : "Details"} additionalClasses="column is-4" key={project.id} project={project}/>
+                            <ProjectItem text={project.status === "pending" ? "Create" : "Details"} additionalClasses="column is-4" key={project.id} project={project}/>
                         )
                     }
                 })}
@@ -141,10 +128,10 @@ const Projects = () => {
                 </nav>
             </Fragment>
 
-            : <p className='has-text-centered' style={{marginTop: 200 + "px"}}>{"No " + status + " projects"}</p>
+            : <p className='has-text-centered' style={{marginTop: 200 + "px"}}>{"No projects"}</p>
             }
         </div>
     )
 }
 
-export default Projects;
+export default AllProjects;

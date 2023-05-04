@@ -2,21 +2,24 @@ import { format } from "date-fns";
 import FormInput from "./form-input";
 
 const PayrollItem = ({ index, beneficiary, dailyWage, value }) => {
-    const { lastName, firstName, middleName } = beneficiary;
+    const { lastName, firstName, middleName, municipality, barangay, province, idNumber } = beneficiary;
 
     const total = parseFloat(dailyWage, 10) * parseInt(value);
 
     return (
         <tr>
             <td>{index}</td>
-            <td>{lastName + ", " + firstName + " " + middleName.charAt(0)}</td>
+            <td>{idNumber}</td>
+            <td>{lastName}</td>
+            <td>{firstName}</td>
+            <td>{middleName}</td>
+            <td>{barangay + ", " + municipality + ", " + province}</td>
             <td>P {parseInt(dailyWage).toLocaleString()}</td>
             <td>{value}</td>
             <td>P {total.toLocaleString()}</td>
-            <td>P 0.00</td>
-            <td>P {total.toLocaleString()}</td>
-            <td>_____________________________</td>
-            <td>{index}</td>
+            <td className="no-border-right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+            <td className="no-border-left">{index}</td>
         </tr>
     );
 }

@@ -13,12 +13,14 @@ export const StaticContext = createContext({
     slr: [],
     sv: [],
     se: [],
+    tagalog: [],
     talisay: [],
     vinzons: [],
 });
 
 const municipalitiesArray = ["Basud", "Capalonga", "Daet", "Jose Panganiban", "Mercedes", "Labo", "Paracale", "San Lorenzo Ruiz", "San Vicente", "Sta Elena", "Talisay", "Vinzons"]
 const bicolArray = ["Basud", "Daet", "Mercedes", "San Lorenzo Ruiz", "San Vicente", "Talisay", "Vinzons"]
+const tagalogArray = ["Capalonga", "Jose Panganiban", "Labo", "Paracale", "Sta Elena"]
 const basudArray = ["Angas", "Bactas", "Binatagan", "Caayunan", "Guinatungan", "Hinampacan", "Langa", "Laniton", "Lidong", "Mampili", "Mandazo", "Mangcamagong", "Manmuntay", "Mantugawe",
             "Matnog", "Mocong", "Oliva", "Pagsangahan", "Pinagwarasan", "Plaridel", "Poblacion 1", "Poblacion 2", "San Felipe", "San Jose", "San Pascual", "Taba-taba", "Tacad", "Taisan", "Tuaca"]
 const capalongaArray = ["Alayao", "Binawangan", "Calabaca", "Camagsaan", "Catabaguangan", "Catioan", "Del Pilar", "Itok", "Lucbanan", "Mabini", "Mactang", "Mataque", "Old Camp", "Poblacion",
@@ -58,10 +60,11 @@ export const StaticProvider = ({ children }) => {
     const [slr] = useState(slrArray);
     const [sv] = useState(svArray);
     const [se] = useState(seArray);
+    const [tagalog] = useState(tagalogArray);
     const [talisay] = useState(talisayArray);
     const [vinzons] = useState(vinzonsArray);
 
-    const value = {municipalities, bicol, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, talisay, vinzons};
+    const value = {municipalities, bicol, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, tagalog, talisay, vinzons};
 
     return <StaticContext.Provider value={value}>{children}</StaticContext.Provider>
 } 

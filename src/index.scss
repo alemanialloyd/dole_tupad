@@ -35,8 +35,16 @@ input[type="date"] {
 }
 
 .table td, .table th {
-  padding: 1.5em 1.75em!important;
+  padding: 1em 1.5em!important;
   vertical-align: middle!important;
+
+  &.no-border-right {
+    border-right-width: 0px!important;
+  }
+
+  &.no-border-left {
+    border-left-width: 0px!important;
+  }
 }
 
 .table {
@@ -58,6 +66,14 @@ input[type="date"] {
   }
 }
 
+.is-selectable {
+    cursor: pointer;
+}
+
+.modal-card-foot, .modal-card-head {
+  border: 0!important;
+}
+
 .button.is-info {
   background-color: #0075ff!important;
 }
@@ -71,4 +87,73 @@ input[type="date"] {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.with-border-bottom {
+  display: inline-block;
+  width: 500px;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.modal {
+  &.is-white {
+    .modal-background {
+      background-color: white!important;
+      z-index: -1;
+    }
+    .modal-close:before, .modal-close:after {
+      background-color: black!important;
+    }
+  }
+}
+
+.dropdown {
+  .dropdown-trigger {
+    .button {
+      justify-content: start;
+
+      :after {
+        border: 3px solid transparent;
+        border-radius: 2px;
+        border-right: 0;
+        border-top: 0;
+        content: " ";
+        display: block;
+        height: 0.625em;
+        pointer-events: none;
+        position: absolute;
+        transform: rotate(-45deg);
+        transform-origin: center;
+        width: 0.625em;
+        right: 0.825em !important;
+        border-color: #485fc7;
+        z-index: 4;
+        margin-top: -1rem;
+      }
+    }
+  }
+
+  .dropdown-content {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .dropdown-menu {
+    width: calc(100% - 1.5rem);
+    left: 0.75rem;
+    top: initial;
+  }
+
+  &:focus-within {
+    .dropdown-menu {
+      display: block!important;
+    }
+  }
+}
+
+.ellipsize {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
 }

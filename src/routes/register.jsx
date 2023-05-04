@@ -4,9 +4,7 @@ import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate} from 'react-router-dom';
 import { StaticContext } from "../context/static-context";
-import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createUserDocument, signInUserWithEmailAndPassword, signOutUser } from '../utils/firebase';
-import { signOut } from 'firebase/auth';
-import { UserContext } from "../context/user-context";
+import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createUserDocument } from '../utils/firebase';
 
 const defaultFormFields = {
     firstName: '',
@@ -34,21 +32,22 @@ const defaultFormFields = {
     skillsTrainingOthers: '',
     occupation: 'Select',
     occupationOthers: '',
-    status: 'approved',
-    type: 'beneficiary',
-    password: 'doletupad'
+    status: 'for-approval',
+    password: '',
+    confirmPassword: '',
+    type: 'beneficiary'
 }
 
-const BeneficiaryNew = () => {
+const Register = () => {
     const { municipalities, bicol, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, talisay, vinzons } = useContext(StaticContext);
     const navigate = useNavigate();
-    const { currentUser } = useContext(UserContext);
+
     const [barangays, setbarangays] = useState([]);
     const [formFields, setFormFields] = useState(defaultFormFields);
-    const { password, firstName, lastName, middleName, extensionName, birthDate, gender, civilStatus, age, emailAddress, contactNumber, province, municipality, barangay, district,
+    const { password, confirmPassword, firstName, lastName, middleName, extensionName, birthDate, gender, civilStatus, age, emailAddress, contactNumber, province, municipality, barangay, district,
         beneficiaryType, beneficiaryTypeOthers, idType, idTypeOthers, dependentName, interested, skillsTraining, skillsTrainingOthers, occupation, occupationOthers, idNumber} = formFields;
     const [modal, setModal] = useState("");
-    
+
     const resetFormFields = () => {
         setFormFields(defaultFormFields);
     }
@@ -153,6 +152,12 @@ const BeneficiaryNew = () => {
         } else if (interested === "Yes" && skillsTraining === "Select") {
             setModal("Select skills/training");
             return;
+        } else if (password !== confirmPassword) {
+            setModal("Password mismatch");
+            return;
+        } else if (password.length < 6) {
+            setModal("Password should be atleast 6 characters");
+            return;
         }
 
         const uid = lastName.toLowerCase().replaceAll(" ", "") + firstName.toLowerCase().replaceAll(" ", "") + birthDate.replaceAll("-", "");
@@ -163,13 +168,10 @@ const BeneficiaryNew = () => {
         }
 
         try {
-            const ema = currentUser.data.emailAddress;
-            const pas = currentUser.data.password;
-
             const { user } = await createAuthUserWithEmailAndPassword(emailAddress, password);
+            delete formFields.confirmPassword;
+
             await createUserDocument(user, {...formFields, uid});
-            
-            await signInUserWithEmailAndPassword(ema, pas);
             navigate("/beneficiaries/" + user.uid);
         } catch (error) {
             if (error.code == "auth/email-already-in-use") {
@@ -195,14 +197,7 @@ const BeneficiaryNew = () => {
                 </div>
             </div> : ""}
 
-            <nav className="breadcrumb mb-6">
-                <ul>
-                    <li><a onClick={() => {navigate("/")}}>Home</a></li>
-                    <li className="is-active"><a aria-current="page">New Beneficiary</a></li>
-                </ul>
-            </nav>
-
-            <h2 className='is-size-4 has-text-weight-bold'>New Beneficiary</h2>
+            <h2 className='is-size-4 has-text-weight-bold'>Register</h2>
             <p className='block'>Fill out required fields.</p>
             <form onSubmit={handleSubmit}>
                 <div className='columns is-multiline'>
@@ -229,13 +224,15 @@ const BeneficiaryNew = () => {
                     <FormSelect options={["Yes", "No"]} type="text" required id="interested" onChange={handleChange} value={interested} label="Interested in Skills/Training? *" additionalClasses="column is-6"/>
                     <FormSelect disabled={interested !== "Yes"} required={interested === "Yes"} options={["Agriculture Crops Production", "Aquaculture", "Automative", "Construction", "Cooking", "Customer Services", "Electrical and Electronics", "Food Processing", "Furniture Making", "Garments and Textiles", "Housekeeping", "Information and Communication Technology", "Tourism", "Welding", "Others"]} type="text" id="skillsTraining" onChange={handleChange} value={skillsTraining} label="Skills Training *" additionalClasses={`${skillsTraining === "Others" ? "is-2" : "is-6"} column`}/>
                     {skillsTraining === "Others" ? <FormInput type="text" required id="skillsTrainingOthers" value={skillsTrainingOthers} onChange={handleChange} label="Please Specify" additionalClasses="column is-4"/> : ""}
-                    <FormInput required type="email" id="emailAddress" value={emailAddress} onChange={handleChange} label="Email Address *" additionalClasses="column is-6"/>
                     <FormInput required type="tel" id="contactNumber" value={contactNumber} onChange={handleChange} label="Contact Number *" additionalClasses="column is-6"/>
+                    <FormInput required type="email" id="emailAddress" value={emailAddress} onChange={handleChange} label="Email Address *" additionalClasses="column is-12"/>
+                    <FormInput required type="password" id="password" value={password} onChange={handleChange} label="Password *" additionalClasses="column is-6"/>
+                    <FormInput required type="password" id="confirmPassword" value={confirmPassword} onChange={handleChange} label="Confirm Password *" additionalClasses="column is-6"/>
                 </div>
-                <Button type="submit" additionalClasses="is-info block">Create</Button>
+                <Button type="submit" additionalClasses="is-info block">Register</Button>
                 </form>
         </div>
     )
 }
 
-export default BeneficiaryNew;
+export default Register;

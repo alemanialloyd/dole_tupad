@@ -18,6 +18,14 @@ import Home from './routes/home';
 import Payroll from './routes/payroll';
 import Accounts from './routes/accounts';
 import AccountEdit from './routes/account-edit';
+import AllProjects from './routes/projects-all';
+import ForApproval from './routes/beneficiaries-for-approval';
+import ForgotPassword from './routes/forgot-password';
+import Register from './routes/register';
+import ChangePassword from './routes/change-password';
+import AccountDeleted from './routes/account-deleted';
+import SummaryReport from './routes/summary-report';
+import BeneficiariesDisapproved from './routes/beneficiaries-disapproved';
 
 function App() {
   const { currentUser } = useContext(UserContext);
@@ -26,22 +34,30 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigation/>}>
         <Route index element={<Home/>}/>
+        <Route path="/register" element={currentUser ? "" : <Register/>}/>
         <Route path="/signin" element={currentUser ? "" : <SignInForm/>}/>
+        <Route path="/change-password" element={currentUser ? <ChangePassword/> : ""}/>
+        <Route path="/forgot-password" element={currentUser ? "" : <ForgotPassword/>}/>
         <Route path="/accounts" element={currentUser ? currentUser.data.type === "superadmin" ? <Accounts/> : "" : ""}/>
         <Route path="/accounts/new" element={currentUser ? currentUser.data.type === "superadmin" ? <AccountNew/> : "" : ""}/>
         <Route path="/accounts/:id/edit" element={currentUser ? currentUser.data.type === "superadmin" ? <AccountEdit/> : "" : ""}/>
+        <Route path="/projects/all" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <AllProjects/> : ""}/>
         <Route path="/projects/:id" element={currentUser ? <Project/> : ""}/>
         <Route path="/projects/:id/edit" element={currentUser ? currentUser.data.type === "superadmin" ? <ProjectEdit/> : "" : ""}/>
-        <Route path="/projects/ongoing" element={currentUser ? <Projects/> : ""}/>
-        <Route path="/projects/finished" element={currentUser ? <Projects/> : ""}/>
-        <Route path="/projects/pending" element={currentUser ? <Projects/> : ""}/>
+        <Route path="/projects/ongoing" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <Projects/> : ""}/>
+        <Route path="/projects/finished" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <Projects/> : ""}/>
+        <Route path="/projects/pending" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <Projects/> : ""}/>
         <Route path="/projects/new" element={currentUser ? currentUser.data.type === "superadmin" ? <ProjectNew/> : "" : ""}/>
-        <Route path="/beneficiaries" element={currentUser ? <Beneficiaries/> : ""}/>
+        <Route path="/beneficiaries/approved" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <Beneficiaries/> : ""}/>
         <Route path="/beneficiaries/:id" element={currentUser ? <Beneficiary/> : ""}/>
-        <Route path="/beneficiaries/:id/edit" element={currentUser ? <BeneficiaryEdit/> : ""}/>
-        <Route path="/beneficiaries/new" element={currentUser ? <BeneficiaryNew/> : ""}/>
+        <Route path="/beneficiaries/:id/edit" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <BeneficiaryEdit/> : ""}/>
+        <Route path="/beneficiaries/new" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <BeneficiaryNew/> : ""}/>
+        <Route path="/beneficiaries/for-approval" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <ForApproval/> : ""}/>
+        <Route path="/beneficiaries/disapproved" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <BeneficiariesDisapproved/> : ""}/>
+        <Route path="/account-deleted" element={<AccountDeleted/>}/>
       </Route>
-        <Route path="/payroll/:id" element={currentUser ? <Payroll/> : ""}/>
+        <Route path="/payroll/:id" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <Payroll/> : ""}/>
+        <Route path="/summary-report" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <SummaryReport/> : ""}/>
     </Routes>
   );
 }

@@ -11,26 +11,11 @@ const defaultFormFields = {
 }
 
 const SignInForm = () => {
-    console.log("Signin");
     const navigate = useNavigate();
-    
-    // Google redirect login
-    useEffect(() => {
-        const getResponse = async () => {
-            await getRedirectResult(auth);
-        }
-        getResponse();
-    }, []);
 
-    // Google popup login
-    const logGoogleUser = async () => {
-        await signInWithGooglePopup();
-    }
-
-    
-    // Email and Password login
     const [formFields, setFormFields] = useState(defaultFormFields);
     const { email, password} = formFields;
+    const [modal, setModal] = useState("");
 
     const resetFormFields = () => {
         setFormFields(defaultFormFields);
@@ -53,10 +38,10 @@ const SignInForm = () => {
         } catch (error) {
             switch(error.code) {
                 case "auth/wrong-password":
-                    alert("Incorrect password");
+                    setModal("Incorrect password");
                     break;
                 case "auth/user-not-found":
-                    alert("User not found");
+                    setModal("User not found");
                     break;
                 default:
                     console.log("Sign in failed: ", error.message);
@@ -67,6 +52,18 @@ const SignInForm = () => {
     return (
         <div className='column'>
             <div className='columns mt-6'>
+            {modal !== "" ? <div className="modal has-text-centered is-active">
+                <div className="modal-background"></div>
+                <div className="modal-content">
+                    <header className="modal-card-head pt-6">
+                        <p className="modal-card-title">{modal}</p>
+                    </header>
+                    <footer className="modal-card-foot has-text-centered is-block pb-5">
+                        <button className="button" onClick={() => {setModal("")}}>OK</button>
+                    </footer>
+                </div>
+            </div> : ""}
+
                 <div className='column is-4 is-offset-4 mt-6'>
                     <h2 className='is-size-2 has-text-weight-bold mt-6'>Sign in</h2>
                 <p className='block'>Type in your email address & password</p>
@@ -74,6 +71,7 @@ const SignInForm = () => {
                         <FormInput type="email" required id="email" value={email} onChange={handleChange} label="Email Address" additionalClasses="block"/>
                         <FormInput type="password" required id="password" value={password} onChange={handleChange} label="Password" additionalClasses="block"/> 
                         <Button type="submit" additionalClasses="is-fullwidth is-info block">Sign in</Button>
+                        <Button type="button" additionalClasses="is-fullwidth block" onClick={() => {navigate("/forgot-password")}}>Forgot Password</Button>
                         </form>
                 </div>
             </div>

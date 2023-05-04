@@ -11,8 +11,10 @@ const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [toggle, setToggle] = useState(false);
+  const [modalSignOut, setModalSignOut] = useState("");
 
   const signOutHandler = () => {
+    setModalSignOut("");
     signOutUser();
     navigate('/');
   }
@@ -26,14 +28,33 @@ const Navigation = () => {
     setToggle(false);
   }
 
+  if (currentUser && currentUser.data&& currentUser.data.status == "deleted") {
+    signOutUser();
+    navigate('/account-deleted');
+  }
+
   return (
     <Fragment>
+                  {modalSignOut !== "" ? <div className="modal has-text-centered is-active">
+                <div className="modal-background"></div>
+                <div className="modal-content">
+                    <header className="modal-card-head pt-6">
+                        <p className="modal-card-title">{modalSignOut}</p>
+                    </header>
+                    <footer className="modal-card-foot has-text-centered is-block pb-5">
+                        <button className="button" onClick={() => setModalSignOut("")}>No</button>
+                        <button className="button" onClick={signOutHandler}>Yes</button>
+                    </footer>
+                </div>
+            </div> : ""}
+
           <nav className="navbar py-2" role="navigation" aria-label="main navigation">
   <div className="navbar-brand">
     <a className="navbar-item" onClick={() => onNavigate("/")}>
       <img src={logo}/>
       <h1 className="is-size-5 ml-5">
-        DOLE - TUPAD Program Camarines Norte
+        DOLE - TUPAD<br/>
+        <small>Camarines Norte</small>
         </h1>
     </a>
 
@@ -46,8 +67,6 @@ const Navigation = () => {
 
   {currentUser ? <div id="navbarBasicExample" className={`navbar-menu ${toggle ? "is-active" : ""}`}>
     <div className="navbar-end">
-    <a className="navbar-item">
-      </a>
 
       {currentUser.data.type === "superadmin" ?
       <div className="navbar-item has-dropdown is-hoverable">
@@ -66,14 +85,22 @@ const Navigation = () => {
       </div>
     </div> : ""}
 
-    <div className="navbar-item has-dropdown is-hoverable">
+    {currentUser.data.type !== "beneficiary" ? 
+    <Fragment>
+      <div className="navbar-item has-dropdown is-hoverable">
       <a className="navbar-link is-arrowless">
         Beneficiaries
       </a>
 
       <div className="navbar-dropdown is-boxed">
-          <a className="navbar-item" onClick={() => onNavigate("/beneficiaries")}>
-            View Beneficiaries
+          <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/for-approval")}>
+            For Approval
+          </a>
+          <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/approved")}>
+            Approved
+          </a>
+          <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/disapproved")}>
+            Dispproved
           </a>
           <hr className="navbar-divider"/>
         <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/new")}>
@@ -88,14 +115,17 @@ const Navigation = () => {
         </a>
 
         <div className="navbar-dropdown is-boxed">
+        <a className="navbar-item" onClick={() => onNavigate("/projects/all")}>
+            All
+          </a>
+          <a className="navbar-item" onClick={() => onNavigate("/projects/pending")}>
+            Pending
+          </a>
           <a className="navbar-item" onClick={() => onNavigate("/projects/ongoing")}>
             Ongoing
           </a>
           <a className="navbar-item" onClick={() => onNavigate("/projects/finished")}>
             Finished
-          </a>
-          <a className="navbar-item" onClick={() => onNavigate("/projects/pending")}>
-            Pending
           </a>
           
           {currentUser.data.type === "superadmin" ? <Fragment>
@@ -106,10 +136,17 @@ const Navigation = () => {
           </Fragment> : ""}
         </div>
       </div>
+    </Fragment> : <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/" + currentUser.uid)}>
+            Profile
+          </a>}
+
+          <a className="navbar-item" onClick={() => onNavigate("/change-password")}>
+            Change Password
+          </a>
 
       <div className="navbar-item">
         <div className="buttons">
-          <a className="button is-info" onClick={signOutHandler}>
+          <a className="button is-info" onClick={() => setModalSignOut("Are you sure you want to sign out?")}>
             Sign out
           </a>
         </div>
@@ -117,6 +154,9 @@ const Navigation = () => {
     </div>
   </div> : <div id="navbarBasicExample" className={`navbar-menu ${toggle ? "is-active" : ""}`}>
       <div className="navbar-end">
+        <a className="navbar-item" onClick={() => onNavigate("/register")}>
+            Register
+          </a>
       <div className="navbar-item">
         <div className="buttons">
           <a className="button is-info" onClick={() => onNavigate("/signin")}>

@@ -1,6 +1,6 @@
 import BeneficiaryItem from "../components/beneficiary-item"
 import { useContext, useState, useEffect } from 'react';
-import { getBeneficiaryDocuments } from "../utils/firebase";
+import { getBeneficiaryDocuments, updateBeneficiaryDocument } from "../utils/firebase";
 import { StaticContext } from "../context/static-context";
 import FormSelect from "../components/form-select";
 import {useLocation, useNavigate} from 'react-router-dom';
@@ -12,17 +12,17 @@ const defaultFormFields = {
     barangay: 'All',
 }
 
-const Beneficiaries = () => {
+const ForApproval = () => {
     const { municipalities, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, talisay, vinzons } = useContext(StaticContext);
     const [beneficiaries, setBeneficiaries = () => []] = useState([]);
     const [allBeneficiaries, setAllBeneficiaries = () => []] = useState([]);
-    const [page, setPage] = useState(0);
-    const maxDocs = 20;
     const [barangays, setbarangays] = useState([]);
     const [search, setSearch] = useState("");
     const [formFields, setFormFields] = useState(defaultFormFields);
     const {province, municipality, barangay} = formFields;
     const navigate = useNavigate();
+    const location = useLocation();
+    const [modal, setModal] = useState("");
     const [lnDir, setLnDir] = useState("asc");
     const [fnDir, setFnDir] = useState("asc");
     const [sort, setSort] = useState(0);
@@ -31,21 +31,7 @@ const Beneficiaries = () => {
 
     useEffect(() => {
         async function getDocs() {
-            const docs = await getBeneficiaryDocuments("approved", municipality, barangay);
-            docs.sort((a, b) => {
-                const a1 = a.lastName.toLowerCase().replace(" ", "") + a.firstName.toLowerCase().replace(" ", "");
-                const b1 = b.lastName.toLowerCase().replace(" ", "") + b.firstName.toLowerCase().replace(" ", "");
-
-                if ( a1 < b1 ){
-                    return -1;
-                }
-                if ( a1 > b1 ){
-                    return 1;
-                }
-
-                return 0;
-            });
-            
+            const docs = await getBeneficiaryDocuments("for-approval", municipality, barangay);
             setAllBeneficiaries(docs);
             console.log(docs);
         };
@@ -53,7 +39,7 @@ const Beneficiaries = () => {
     }, [formFields]);
 
     useEffect(() => {
-        var res = allBeneficiaries.filter((item) => {return item.lastName.toLowerCase().includes(search.toLowerCase()) || 
+        const res = allBeneficiaries.filter((item) => {return item.lastName.toLowerCase().includes(search.toLowerCase()) || 
             item.firstName.toLowerCase().includes(search.toLowerCase()) || item.middleName.toLowerCase().includes(search.toLowerCase())});
 
         if (filter !== "") {
@@ -75,7 +61,8 @@ const Beneficiaries = () => {
         });
 
         setBeneficiaries(res);
-    }, [search, allBeneficiaries, lnDir, fnDir, filter]);
+    }, [search, allBeneficiaries]);
+
 
     const handleChange = (event) => {
         const { id, value } = event.target;
@@ -135,9 +122,14 @@ const Beneficiaries = () => {
         setSearch(value);
     }
 
-    const pages = [];
-    for (let i = 0; i < beneficiaries.length / maxDocs; i++) {
-        pages.push(i);
+    const handleApprove = async(id, status) => {
+        const res = await updateBeneficiaryDocument(id, {"status": status});
+
+        if (res === "success") {
+            setAllBeneficiaries(allBeneficiaries.filter((item) => {return id !== item.id}));
+        } else {
+            setModal(res);
+        }
     }
 
     const onClickHandler = (e) => {
@@ -154,7 +146,19 @@ const Beneficiaries = () => {
 
     return (
         <div className='column is-8 is-offset-2  my-6'>
-        {modalFilter === 1 ? <div className="modal is-active is-white">
+            {modal !== "" ? <div className="modal has-text-centered is-active">
+                <div className="modal-background"></div>
+                <div className="modal-content">
+                    <header className="modal-card-head pt-6">
+                        <p className="modal-card-title">{modal}</p>
+                    </header>
+                    <footer className="modal-card-foot has-text-centered is-block pb-5">
+                        <button className="button" onClick={() => {setModal("")}}>OK</button>
+                    </footer>
+                </div>
+            </div> : ""}
+
+            {modalFilter === 1 ? <div className="modal is-active is-white">
   <div className="modal-background"></div>
     <div className="column is-6">
         <div className="columns is-multiline">
@@ -190,15 +194,16 @@ const Beneficiaries = () => {
     </div>
   <button className="modal-close is-large" aria-label="close" onClick={() => {setModalFilter(0)}}></button>
 </div> : ""}
+
             <nav className="breadcrumb mb-6">
                 <ul>
                     <li><a onClick={() => {navigate("/")}}>Home</a></li>
-                    <li className="is-active"><a aria-current="page">Beneficiaries</a></li>
+                    <li className="is-active"><a aria-current="page">For Approval</a></li>
                 </ul>
             </nav>
 
         <div className="columns is-vcentered">
-            <h2 className='is-size-4 has-text-weight-bold column is-4'>Beneficiaries</h2>
+            <h2 className='is-size-4 has-text-weight-bold column is-4'>For Approval</h2>
             <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...municipalities]} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...barangays]} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-2"/>
@@ -217,6 +222,7 @@ const Beneficiaries = () => {
                             <th>Province</th>
                             <th>Municipality</th>
                             <th>Barangay</th>
+                            <th>Registered Date</th>
                             <th>
                             <button className="button is-pulled-right" onClick={() => {setModalFilter(1)}}>
                             <span className="icon">
@@ -229,28 +235,15 @@ const Beneficiaries = () => {
                     
                     <tbody>
                         {beneficiaries.map((beneficiary, index) => {
-                        if (index >= (page * maxDocs) && index < maxDocs + (page * maxDocs)) {
-                            return (
-                                <BeneficiaryItem key={beneficiary.id} beneficiary={beneficiary} index={index + 1}/>
-                            )
-                        }
+                        return (
+                            <BeneficiaryItem key={beneficiary.id} beneficiary={beneficiary} index={index + 1} handleApprove={handleApprove} created={beneficiary.created}/>
+                        )
                     })}
                     </tbody>
                 </table>
             </div>
-            <nav className="pagination is-right" role="navigation" aria-label="pagination">
-                    <ul className="pagination-list">
-                        {pages.map((p) => {
-                            if (pages.length > 1) {
-                                return <li key={p} ><a className={`${page === p ? "is-current" : ""} pagination-link`} onClick={() => {
-                                    if (p !== page) {setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' });}
-                                }}>{p + 1}</a></li>
-                            }}
-                        )}
-                    </ul>
-                </nav>
         </div>
     )
 }
 
-export default Beneficiaries;
+export default ForApproval;
