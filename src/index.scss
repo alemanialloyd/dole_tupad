@@ -58,6 +58,11 @@ input[type="date"] {
     tr {
       cursor: pointer;
 
+      &.is-applicant {
+        background-color: #48c78e!important;
+        color: white;
+      }
+
       &.is-active {
         background-color: #0075ff!important;
         color: white;
@@ -70,8 +75,10 @@ input[type="date"] {
     cursor: pointer;
 }
 
-.modal-card-foot, .modal-card-head {
-  border: 0!important;
+.custom-modal {
+  .modal-card-foot, .modal-card-head {
+    border: 0!important;
+  }
 }
 
 .button.is-info {

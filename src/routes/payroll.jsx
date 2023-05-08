@@ -38,7 +38,6 @@ const Payroll = () => {
                 beneficiariesList.sort((a, b) => {
                     const a1 = a.lastName.toLowerCase().replace(" ", "") + a.firstName.toLowerCase().replace(" ", "");
                     const b1 = b.lastName.toLowerCase().replace(" ", "") + b.firstName.toLowerCase().replace(" ", "");
-                    console.log(a1 + "/" + b1);
     
                     if ( a1 < b1 ){
                         return -1;

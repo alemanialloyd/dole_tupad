@@ -19,7 +19,7 @@ const Navigation = () => {
 
     setModalSignOut("");
     signOutUser();
-    navigate('/');
+    navigate('/signin');
   }
 
   const onMenuToggle = () => {
@@ -38,7 +38,7 @@ const Navigation = () => {
 
   return (
     <Fragment>
-                  {modalSignOut !== "" ? <div className="modal has-text-centered is-active">
+                  {modalSignOut !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">
@@ -72,21 +72,9 @@ const Navigation = () => {
     <div className="navbar-start">
 
       {currentUser.data.type === "superadmin" ?
-      <div className="navbar-item has-dropdown is-hoverable">
-      <a className="navbar-link is-arrowless">
+      <a className="navbar-item" onClick={() => onNavigate("/accounts")}>
         Accounts
-      </a>
-
-      <div className="navbar-dropdown is-boxed">
-          <a className="navbar-item" onClick={() => onNavigate("/accounts")}>
-            View Accounts
-          </a>
-          <hr className="navbar-divider"/>
-        <a className="navbar-item" onClick={() => onNavigate("/accounts/new")}>
-          New Account
-        </a>
-      </div>
-    </div> : ""}
+      </a> : ""}
 
     {currentUser.data.type !== "beneficiary" ? 
     <Fragment>
@@ -105,22 +93,15 @@ const Navigation = () => {
           <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/disapproved")}>
             Disapproved
           </a>
-          <hr className="navbar-divider"/>
-        <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/new")}>
-          New Beneficiary
-        </a>
       </div>
     </div>
 
       <div className="navbar-item has-dropdown is-hoverable">
-        <a className="navbar-link is-arrowless">
+        <a className="navbar-link is-arrowless" onClick={() => onNavigate("/")}>
           Projects
         </a>
 
         <div className="navbar-dropdown is-boxed">
-        <a className="navbar-item" onClick={() => onNavigate("/projects/all")}>
-            All
-          </a>
           <a className="navbar-item" onClick={() => onNavigate("/projects/pending")}>
             Pending
           </a>
@@ -130,13 +111,6 @@ const Navigation = () => {
           <a className="navbar-item" onClick={() => onNavigate("/projects/finished")}>
             Finished
           </a>
-          
-          {currentUser.data.type === "superadmin" ? <Fragment>
-          <hr className="navbar-divider"/>
-          <a className="navbar-item" onClick={() => onNavigate("/projects/new")}>
-            New Project
-          </a>
-          </Fragment> : ""}
         </div>
       </div>
     </Fragment> : <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/" + currentUser.uid)}>

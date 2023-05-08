@@ -69,7 +69,9 @@ const AccountNew = () => {
             const pas = currentUser.data.password;
 
             const { user } = await createAuthUserWithEmailAndPassword(emailAddress, password);
-            await createUserDocument(user, formFields);
+            const created = new Date();
+
+            await createUserDocument(user, {...formFields, created});
             
             await signInUserWithEmailAndPassword(ema, pas);
             
@@ -89,7 +91,7 @@ const AccountNew = () => {
 
     return (
         <div className='column is-8 is-offset-2 my-6'>
-            {modal !== "" ? <div className="modal has-text-centered is-active">
+            {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">

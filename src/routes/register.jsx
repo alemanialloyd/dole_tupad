@@ -4,7 +4,7 @@ import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate} from 'react-router-dom';
 import { StaticContext } from "../context/static-context";
-import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createLog, createUserDocument } from '../utils/firebase';
+import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createLog, createUserDocument, getIdNumber } from '../utils/firebase';
 
 const defaultFormFields = {
     firstName: '',
@@ -25,7 +25,6 @@ const defaultFormFields = {
     beneficiaryTypeOthers: '',
     idType: 'Select',
     idTypeOthers: '',
-    idNumber: '',
     dependentName: '',
     interested: 'Select',
     skillsTraining: 'Select',
@@ -35,7 +34,8 @@ const defaultFormFields = {
     status: 'for-approval',
     password: '',
     confirmPassword: '',
-    type: 'beneficiary'
+    type: 'beneficiary',
+    idNum: ''
 }
 
 const Register = () => {
@@ -44,8 +44,8 @@ const Register = () => {
 
     const [barangays, setbarangays] = useState([]);
     const [formFields, setFormFields] = useState(defaultFormFields);
-    const { password, confirmPassword, firstName, lastName, middleName, extensionName, birthDate, gender, civilStatus, age, emailAddress, contactNumber, province, municipality, barangay, district,
-        beneficiaryType, beneficiaryTypeOthers, idType, idTypeOthers, dependentName, interested, skillsTraining, skillsTrainingOthers, occupation, occupationOthers, idNumber} = formFields;
+    const { idNum, password, confirmPassword, firstName, lastName, middleName, extensionName, birthDate, gender, civilStatus, age, emailAddress, contactNumber, province, municipality, barangay, district,
+        beneficiaryType, beneficiaryTypeOthers, idType, idTypeOthers, dependentName, interested, skillsTraining, skillsTrainingOthers, occupation, occupationOthers} = formFields;
     const [modal, setModal] = useState("");
 
     const resetFormFields = () => {
@@ -131,6 +131,12 @@ const Register = () => {
         } else if (civilStatus === "Select") {
             setModal("Select civil status");
             return;
+        }  else if (parseInt(age) < 18) {
+            setModal("Age must be 18 years old and above");
+            return;
+        }  else if (parseInt(age) > 75) {
+            setModal("Age must be 75 years old and below");
+            return;
         } else if (municipality === "Select") {
             setModal("Select municipality");
             return;
@@ -163,15 +169,19 @@ const Register = () => {
         const uid = lastName.toLowerCase().replaceAll(" ", "") + firstName.toLowerCase().replaceAll(" ", "") + birthDate.replaceAll("-", "");
         const existing = await checkExistingBeneficiary(uid);
         if (existing) {
-            setModal("Benefeciary exists");
+            setModal("Beneficiary exists");
             return;
         }
 
         try {
-            const { user } = await createAuthUserWithEmailAndPassword(emailAddress, password);
             delete formFields.confirmPassword;
+                    
+            const created = new Date();
+            const year = parseInt(created.getFullYear());
+            const idNumber = await getIdNumber(year);
 
-            await createUserDocument(user, {...formFields, uid});
+            const { user } = await createAuthUserWithEmailAndPassword(emailAddress, password);
+            await createUserDocument(user, {...formFields, uid, created, year, idNumber});
             
             const log = {"action": "A beneficiary registered an account", "id": user.uid, "type" : "beneficiary", "by" : user.uid}
             await createLog(log);
@@ -189,7 +199,7 @@ const Register = () => {
 
     return (
         <div className='column is-8 is-offset-2 my-6'>
-            {modal !== "" ? <div className="modal has-text-centered is-active">
+            {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">
@@ -217,19 +227,19 @@ const Register = () => {
                     <FormSelect options={municipalities} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality *" additionalClasses="column is-6"/>
                     <FormSelect options={barangays} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay *" additionalClasses="column is-6"/>
                     <FormInput disabled type="text" id="district" value={district} onChange={handleChange} label="District" additionalClasses="column is-6"/>
-                    <FormSelect options={["Barangay Health Worker", "Barangay Tanod", "Crop Grower", "Fisherfolk", "Homebased Worker", "Laborer", "Livestock/Poultry Raiser", "Small Transport Driver", "Transport Worker", "Vendor", "Unemployed", "Others"]} type="text" required id="occupation" onChange={handleChange} value={occupation} label="Occupation *" additionalClasses={`${occupation === "Others" || occupation === "Crop Grower" || occupation === "Homebased Worker" || occupation === "Laborer" ? "is-2" : "is-6"} column`}/>
+                    <FormSelect options={["Crop Grower", "Fisherfolk", "Homebased Worker", "Laborer", "Livestock/Poultry Raiser", "Small Transport Driver", "Transport Worker", "Vendor", "Unemployed", "Others"]} type="text" required id="occupation" onChange={handleChange} value={occupation} label="Occupation *" additionalClasses={`${occupation === "Others" || occupation === "Crop Grower" || occupation === "Homebased Worker" || occupation === "Laborer" ? "is-2" : "is-6"} column`}/>
                     {occupation === "Others" || occupation === "Crop Grower" || occupation === "Homebased Worker" || occupation === "Laborer" ? <FormInput type="text" required id="occupationOthers" value={occupationOthers} onChange={handleChange} label="Please Specify" additionalClasses="column is-4"/> : ""}
                     <FormInput type="text" required id="dependentName" value={dependentName} onChange={handleChange} label="Dependent Name *" additionalClasses="column is-6"/>
                     <FormSelect options={["Barangay ID", "SSS", "Voter's ID", "Others"]} type="text" required id="idType" onChange={handleChange} value={idType} label="Type of ID *" additionalClasses={`${idType === "Others" ? "is-2" : "is-6"} column`}/>
                     {idType === "Others" ? <FormInput type="text" required id="idTypeOthers" value={idTypeOthers} onChange={handleChange} label="Please Specify" additionalClasses="column is-4"/> : ""}
-                    <FormInput type="text" required id="idNumber" value={idNumber} onChange={handleChange} label="ID Number *" additionalClasses="column is-6"/>
+                    <FormInput type="text" required id="idNum" value={idNum} onChange={handleChange} label="ID Number *" additionalClasses="column is-6"/>
                     <FormSelect options={["Underemployed/Self-Employed", "PWD", "Senior Citizen", "Former Rebels", "Former Violent Extremist Groups", "Indigenous People", "Others"]} type="text" required id="beneficiaryType" onChange={handleChange} value={beneficiaryType} label="Type of Beneficiary *" additionalClasses={`${beneficiaryType === "Others" ? "is-2" : "is-6"} column`}/>
                     {beneficiaryType === "Others" ? <FormInput type="text" required id="beneficiaryTypeOthers" value={beneficiaryTypeOthers} onChange={handleChange} label="Please Specify" additionalClasses="column is-4"/> : ""}
                     <FormSelect options={["Yes", "No"]} type="text" required id="interested" onChange={handleChange} value={interested} label="Interested in Skills/Training? *" additionalClasses="column is-6"/>
                     <FormSelect disabled={interested !== "Yes"} required={interested === "Yes"} options={["Agriculture Crops Production", "Aquaculture", "Automative", "Construction", "Cooking", "Customer Services", "Electrical and Electronics", "Food Processing", "Furniture Making", "Garments and Textiles", "Housekeeping", "Information and Communication Technology", "Tourism", "Welding", "Others"]} type="text" id="skillsTraining" onChange={handleChange} value={skillsTraining} label="Skills Training *" additionalClasses={`${skillsTraining === "Others" ? "is-2" : "is-6"} column`}/>
                     {skillsTraining === "Others" ? <FormInput type="text" required id="skillsTrainingOthers" value={skillsTrainingOthers} onChange={handleChange} label="Please Specify" additionalClasses="column is-4"/> : ""}
                     <FormInput required type="tel" id="contactNumber" value={contactNumber} onChange={handleChange} label="Contact Number *" additionalClasses="column is-6"/>
-                    <FormInput required type="email" id="emailAddress" value={emailAddress} onChange={handleChange} label="Email Address *" additionalClasses="column is-12"/>
+                    <FormInput required type="email" id="emailAddress" value={emailAddress} onChange={handleChange} label="Email Address *" additionalClasses="column is-6"/>
                     <FormInput required type="password" id="password" value={password} onChange={handleChange} label="Password *" additionalClasses="column is-6"/>
                     <FormInput required type="password" id="confirmPassword" value={confirmPassword} onChange={handleChange} label="Confirm Password *" additionalClasses="column is-6"/>
                 </div>

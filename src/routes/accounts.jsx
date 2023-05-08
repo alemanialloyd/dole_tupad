@@ -2,6 +2,7 @@ import AccountItem from "../components/account-item"
 import { useState, useEffect, Fragment } from 'react';
 import { getAccountDocuments } from "../utils/firebase";
 import {useNavigate} from 'react-router-dom';
+import Button from "../components/button";
 
 const Accounts = () => {
     const [accounts, setAccounts = () => []] = useState([]);
@@ -31,7 +32,8 @@ const Accounts = () => {
                 </ul>
             </nav>
 
-            <h2 className='is-size-4 has-text-weight-bold column is-6'>Accounts</h2>  
+            <h2 className='is-size-4 has-text-weight-bold column is-12'>Accounts
+            <Button additionalClasses="block is-success is-pulled-right" type="button" onClick={() => {navigate("/accounts/new")}}>Create New Account</Button></h2>  
 
             {accounts.length > 0 ?
             <Fragment>

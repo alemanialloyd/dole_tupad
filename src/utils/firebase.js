@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, signInWithRedirect, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, updatePassword } from 'firebase/auth'
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, where, getDocs, orderBy, startAt, endAt, updateDoc, getCountFromServer, writeBatch } from 'firebase/firestore'
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, where, getDocs, orderBy, startAt, endAt, updateDoc, getCountFromServer, writeBatch, arrayUnion, arrayRemove } from 'firebase/firestore'
  
 const firebaseConfig = {
   apiKey: "AIzaSyA2Yl1je99CEph89RPlehb99anz3gCrxkE",
@@ -58,6 +58,13 @@ const firebaseConfig = {
     return response;
   }
 
+  export const getIdNumber = async(year) => {
+    const coll = collection(db, "Users");
+    const q = query(coll, where("year", "==", year));
+    const snapshot = await getCountFromServer(q);
+    return snapshot.data().count + 1;
+  }
+
   export const createUserDocument = async (userAuth, additionalInformation = {}) => {
     if (!userAuth) return;
     
@@ -66,12 +73,9 @@ const firebaseConfig = {
     var data = userSnapshot.data();
 
     if (!userSnapshot.exists()) {
-        const created = new Date();
-        
-        data =  {
-          created,
-          ...additionalInformation
-       };
+      data =  {
+        ...additionalInformation
+      };
 
         try {
             await setDoc(userDocRef, data)
@@ -284,17 +288,17 @@ const firebaseConfig = {
     const docs = [];
     var q = query(docRef, where("status", "!=", "deleted"), orderBy("status"), orderBy("created", "desc"));
     if (municipality !== "All") {
-      q = query(docRef, where("status", "!=", "deleted"), orderBy("status"), where("municipality", "==", municipality), orderBy("created", "desc"));
+      q = query(docRef, where("status", "!=", "deleted"), orderBy("status"), where("municipality", "array-contains", municipality), orderBy("created", "desc"));
 
       if (status !== "") {
-        q = query(docRef, where("status", "==", status), where("municipality", "==", municipality), orderBy("created", "desc"));
+        q = query(docRef, where("status", "==", status), where("municipality", "array-contains", municipality), orderBy("created", "desc"));
       }
 
       if (barangay !== "All") {
-        q = query(docRef,where("status", "!=", "deleted"),  orderBy("status"), where("municipality", "==", municipality), where("barangay", "==", barangay), orderBy("created", "desc"));
+        q = query(docRef,where("status", "!=", "deleted"),  orderBy("status"), where("barangay", "array-contains", barangay + ", " + municipality), orderBy("created", "desc"));
 
         if (status !== "") {
-          q = query(docRef, where("status", "==", status), where("municipality", "==", municipality), where("barangay", "==", barangay), orderBy("created", "desc"));
+          q = query(docRef, where("status", "==", status), where("barangay", "array-contains", barangay + ", " + municipality), orderBy("created", "desc"));
         }
       }
     } else {
@@ -319,6 +323,35 @@ const firebaseConfig = {
     return docs;
   }
 
+  export const getAvailableProjects = async (municipality, barangay) => {
+    const docRef = collection(db, "Projects");
+    const docs = [];
+    var q = query(docRef, where("status", "==", "pending"), where("type", "==", "regular"), where("municipality", "array-contains", municipality), orderBy("created", "desc"));
+
+    try {
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          data["id"] = doc.id;
+
+          if (data.barangay.length > 0) {
+            const bar = barangay + ", " + municipality;
+            if (data.barangay.includes(bar)) {
+              docs.push(data);
+            }
+          } else {
+            docs.push(data);
+          }
+      });
+
+    } catch (error) {
+      console.log("error", error.message);
+    }
+
+    return docs;
+  }
+
   export const getFinishedProjects = async (year, status, municipality, barangay) => {
     const docRef = collection(db, "Projects");
     const docs = [];
@@ -328,16 +361,16 @@ const firebaseConfig = {
       q = query(docRef, where("year", "==", parseInt(year)), where("status", "==", status), orderBy("created", "desc"));
 
       if (municipality !== "All") {
-        q = query(docRef, where("year", "==", parseInt(year)), where("status", "==", status), where("municipality", "==", municipality), orderBy("created", "desc"));
+        q = query(docRef, where("year", "==", parseInt(year)), where("status", "==", status), where("municipality", "array-contains", municipality), orderBy("created", "desc"));
         if (barangay !== "All") {
-          q = query(docRef, where("year", "==", parseInt(year)), where("status", "==", status), where("municipality", "==", municipality), where("barangay", "==", barangay), orderBy("created", "desc"));
+          q = query(docRef, where("year", "==", parseInt(year)), where("status", "==", status), where("barangay", "array-contains", barangay + ", " + municipality), orderBy("created", "desc"));
         }
       }
     } else {
       if (municipality !== "All") {
-        q = query(docRef, where("status", "==", status), where("municipality", "==", municipality), orderBy("created", "desc"));
+        q = query(docRef, where("status", "==", status), where("municipality", "array-contains", municipality), orderBy("created", "desc"));
         if (barangay !== "All") {
-          q = query(docRef, where("status", "==", status), where("municipality", "==", municipality), where("barangay", "==", barangay), orderBy("created", "desc"));
+          q = query(docRef, where("status", "==", status), where("barangay", "array-contains", barangay + ", " + municipality), orderBy("created", "desc"));
         }
       }
     }
@@ -436,6 +469,20 @@ const firebaseConfig = {
     }
 
     return docs;
+  }
+  
+  export const updateProjectApplicants = async (id, uid, action) => {
+    const userDocRef = doc(db, 'Projects', id);
+    var response;
+
+    try {
+      await updateDoc(userDocRef, {"applicants": action === "add" ? arrayUnion(uid) : arrayRemove(uid)});
+      response = "success";
+    } catch (error) {
+      response = "error: " + error.message;
+    }
+
+    return response;
   }
 
   export const updateProjectDocument = async (id, additionalInformation = {}) => {

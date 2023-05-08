@@ -2,7 +2,7 @@ import Button from "./button";
 import {useNavigate} from 'react-router-dom';
 
 const ProjectItem = ({text, project, additionalClasses, all}) => {
-    const { title, barangay, municipality, province, beneficiaries, budget, days, dailyWage, district, status } = project;
+    const { title, barangay, municipality, province, beneficiaries, budget, days, dailyWage, district, status, type } = project;
     const navigate = useNavigate();
 
     const onClickHandler = () => {
@@ -18,7 +18,8 @@ const ProjectItem = ({text, project, additionalClasses, all}) => {
             <div className="card columns py-6 is-vcentered" style={{height: 350 + "px"}}>
                 <div className="card-content column">
                     <div className="content has-text-centered px-4 py-4">
-                    {all ? <span class={`tag ${status === "pending" ? "is-warning" : status === "finished" ? "is-success" : "is-info"}`}>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()}</span> : ""}
+                    {all ? <a onClick={() => {navigate("projects/" + status)}} className={`tag mr-3 ${status === "pending" ? "is-warning" : status === "finished" ? "is-info" : "is-success"}`}>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()}</a> : ""}
+                            <span className="tag">{type === "special" ? "Special" : "Regular"}</span>
                             <h1 className='is-size-3'>{title}</h1>
                             {barangay.length > 0 ? barangay.join(" - ") : municipality.length > 0 ? municipality.join(", ") : district}
                             <div className="mt-3">

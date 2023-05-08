@@ -5,11 +5,17 @@ import { StaticContext } from "../context/static-context";
 import FormSelect from "../components/form-select";
 import {useLocation, useNavigate} from 'react-router-dom';
 import FormInput from "../components/form-input";
+import Button from "../components/button";
 
 const defaultFormFields = {
     province: 'Camarines Norte',
     municipality: 'All',
     barangay: 'All',
+}
+
+const defaultData = {
+    status: "",
+    id: ""
 }
 
 const ForApproval = () => {
@@ -23,11 +29,14 @@ const ForApproval = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [modal, setModal] = useState("");
+    const [modalDetails, setModalDetails] = useState(false);
     const [lnDir, setLnDir] = useState("asc");
     const [fnDir, setFnDir] = useState("asc");
     const [sort, setSort] = useState(0);
     const [filter, setFilter] = useState("");
     const [modalFilter, setModalFilter] = useState(0);
+    const [confirm, setConfirm] = useState(false);
+    const [data, setData] = useState(defaultData);
 
     useEffect(() => {
         async function getDocs() {
@@ -38,7 +47,7 @@ const ForApproval = () => {
     }, [formFields]);
 
     useEffect(() => {
-        const res = allBeneficiaries.filter((item) => {return item.lastName.toLowerCase().includes(search.toLowerCase()) || 
+        var res = allBeneficiaries.filter((item) => {return item.lastName.toLowerCase().includes(search.toLowerCase()) || 
             item.firstName.toLowerCase().includes(search.toLowerCase()) || item.middleName.toLowerCase().includes(search.toLowerCase())});
 
         if (filter !== "") {
@@ -60,7 +69,7 @@ const ForApproval = () => {
         });
 
         setBeneficiaries(res);
-    }, [search, allBeneficiaries]);
+    }, [search, allBeneficiaries, lnDir, fnDir, filter]);
 
 
     const handleChange = (event) => {
@@ -121,7 +130,18 @@ const ForApproval = () => {
         setSearch(value);
     }
 
-    const handleApprove = async(id, status) => {
+    const handleApprove = (id, status) => {
+        setData({id, status});
+
+        if (status === "details") {
+            setModalDetails(true);
+            return;
+        }
+        setConfirm(true);
+    }
+
+    const handleComplete = async() => {
+        const {status, id} = data;
         const res = await updateBeneficiaryDocument(id, {"status": status});
 
         if (res === "success") {
@@ -129,6 +149,8 @@ const ForApproval = () => {
             await createLog(log);
 
             setAllBeneficiaries(allBeneficiaries.filter((item) => {return id !== item.id}));
+            setData(defaultData);
+            setConfirm(false);
         } else {
             setModal(res);
         }
@@ -146,9 +168,55 @@ const ForApproval = () => {
         setFilter(value.toLowerCase());
     }
 
+    const pos = beneficiaries.map(a => a.id).indexOf(data.id);
+
     return (
         <div className='column is-8 is-offset-2  my-6'>
-            {modal !== "" ? <div className="modal has-text-centered is-active">
+            {confirm ? <div className="modal custom-modal has-text-centered is-active">
+                <div className="modal-background"></div>
+                <div className="modal-content">
+                    <header className="modal-card-head pt-6">
+                        <p className="modal-card-title">Are you sure you want to {data.status === "approved" ? "approve" : "disapprove"} account?</p>
+                    </header>
+                    <footer className="modal-card-foot has-text-centered is-block pb-5">
+                        <button className="button" onClick={() => {setConfirm(false)}}>No</button>
+                        <button className="button is-success" onClick={handleComplete}>Yes</button>
+                    </footer>
+                </div>
+            </div> : ""}
+
+            {modalDetails && pos > -1 ? <div className="modal is-active">
+                <div className="modal-background"></div>
+                <div className="modal-content" style={{width: 900 + "px"}}>
+                    <header className="modal-card-head">
+                        <p className="modal-card-title">{beneficiaries[pos].lastName + ", " + beneficiaries[pos].firstName}</p>
+                    </header>
+                    <section class="modal-card-body">
+                        <div className="columns is-multiline">
+                            <div className="column is-6"><label>First Name:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].firstName}</p></div>
+                            <div className="column is-6"><label>Last Name:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].lastName}</p></div>
+                            <div className="column is-6"><label>Middle Name:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].middleName ? beneficiaries[pos].middleName : "-"}</p></div>
+                            <div className="column is-6"><label>Name Extension:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].extensionName ? beneficiaries[pos].extensionName : "-"}</p></div>
+                            <div className="column is-6"><label>Sex/Gender:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].gender}</p></div>
+                            <div className="column is-6"><label>Civil Status:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].civilStatus}</p></div>
+                            <div className="column is-6"><label>Date of Birth:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].birthDate}</p></div>
+                            <div className="column is-6"><label>Address:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].barangay + ", " + beneficiaries[pos].municipality + ", " + beneficiaries[pos].province}</p></div>
+                            <div className="column is-6"><label>Occupation:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].occupationOthers ? beneficiaries[pos].occupation + " - " + beneficiaries[pos].occupationOthers : beneficiaries[pos].occupation}</p></div>
+                            <div className="column is-6"><label>Dependent Name:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].dependentName}</p></div>
+                            <div className="column is-6"><label>Type of ID:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].idTypeOthers ? beneficiaries[pos].idType + " - " + beneficiaries[pos].idTypeOthers : beneficiaries[pos].idType}</p></div>
+                            <div className="column is-6"><label>Type of Beneficiary:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].beneficiaryTypeOthers ? beneficiaries[pos].beneficiaryType + " - " + beneficiaries[pos].beneficiaryTypeOthers : beneficiaries[pos].beneficiaryType}</p></div>
+                            <div className="column is-6"><label>Skills/Training:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].interested === "Yes" ? beneficiaries[pos].skillsTrainingOthers ? beneficiaries[pos].skillsTraining + " - " + beneficiaries[pos].skillsTrainingOthers : beneficiaries[pos].skillsTraining : "No"}</p></div>
+                            <div className="column is-6"><label>Email Address:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].emailAddress}</p></div>
+                            <div className="column is-6"><label>Contact:</label> <p className="has-text-weight-medium is-size-5">{beneficiaries[pos].contactNumber}</p></div>
+                        </div>
+                    </section>
+                    <footer className="modal-card-foot has-text-centered is-block">
+                        <button className="button" onClick={() => {setModalDetails(false); setData(defaultData);}}>OK</button>
+                    </footer>
+                </div>
+            </div> : ""}
+
+            {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">
@@ -204,8 +272,9 @@ const ForApproval = () => {
                 </ul>
             </nav>
 
+            <h2 className='is-size-4 has-text-weight-bold column is-12'>For Approval
+            <Button additionalClasses="block is-success is-pulled-right" type="button" onClick={() => {navigate("/beneficiaries/new")}}>Create New Beneficiary</Button></h2>
         <div className="columns is-vcentered">
-            <h2 className='is-size-4 has-text-weight-bold column is-4'>For Approval</h2>
             <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...municipalities]} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...barangays]} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-2"/>
@@ -221,9 +290,7 @@ const ForApproval = () => {
                             <th className="is-selectable" onClick={() => {setFnDir(fnDir === "asc" ? "desc" : "asc"); setSort(1)}}><p className="icon-text">First Name <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={fnDir === "desc" ? "m12 19 6-6m-6 6-6-6m6 6V5" : "m12 5 6 6m-6-6-6 6m6-6v14"}></path></svg></span></p></th>
                             <th>Middle Name</th>
                             <th>Date of Birth</th>
-                            <th>Province</th>
-                            <th>Municipality</th>
-                            <th>Barangay</th>
+                            <th>Address</th>
                             <th>Registered Date</th>
                             <th>
                             <button className="button is-pulled-right" onClick={() => {setModalFilter(1)}}>

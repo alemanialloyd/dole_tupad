@@ -5,6 +5,7 @@ import { StaticContext } from "../context/static-context";
 import FormSelect from "../components/form-select";
 import {useLocation, useNavigate} from 'react-router-dom';
 import FormInput from "../components/form-input";
+import Button from "../components/button";
 
 const defaultFormFields = {
     province: 'Camarines Norte',
@@ -47,7 +48,6 @@ const Beneficiaries = () => {
             });
             
             setAllBeneficiaries(docs);
-            console.log(docs);
         };
         getDocs();
     }, [formFields]);
@@ -197,8 +197,9 @@ const Beneficiaries = () => {
                 </ul>
             </nav>
 
+            <h2 className='is-size-4 has-text-weight-bold column is-12'>Beneficiaries
+            <Button additionalClasses="block is-success is-pulled-right" type="button" onClick={() => {navigate("/beneficiaries/new")}}>Create New Beneficiary</Button></h2>
         <div className="columns is-vcentered">
-            <h2 className='is-size-4 has-text-weight-bold column is-4'>Beneficiaries</h2>
             <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...municipalities]} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...barangays]} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-2"/>
@@ -214,9 +215,7 @@ const Beneficiaries = () => {
                             <th className="is-selectable" onClick={() => {setFnDir(fnDir === "asc" ? "desc" : "asc"); setSort(1)}}><p className="icon-text">First Name <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={fnDir === "desc" ? "m12 19 6-6m-6 6-6-6m6 6V5" : "m12 5 6 6m-6-6-6 6m6-6v14"}></path></svg></span></p></th>
                             <th>Middle Name</th>
                             <th>Date of Birth</th>
-                            <th>Province</th>
-                            <th>Municipality</th>
-                            <th>Barangay</th>
+                            <th>Address</th>
                             <th>
                             <button className="button is-pulled-right" onClick={() => {setModalFilter(1)}}>
                             <span className="icon">

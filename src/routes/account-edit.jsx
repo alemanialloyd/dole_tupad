@@ -94,7 +94,7 @@ const AccountEdit = () => {
 
     return (
         <div className='column is-8 is-offset-2 my-6'>
-            {modal !== "" ? <div className="modal has-text-centered is-active">
+            {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">
@@ -106,7 +106,7 @@ const AccountEdit = () => {
                 </div>
             </div> : ""}
 
-            {confirm ? <div className="modal has-text-centered is-active">
+            {confirm ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">

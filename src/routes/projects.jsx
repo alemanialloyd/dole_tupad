@@ -4,6 +4,7 @@ import { StaticContext } from "../context/static-context";
 import FormSelect from "../components/form-select";
 import { useLocation, useNavigate } from 'react-router-dom'
 import ProjectItem from "../components/project-item";
+import Button from '../components/button';
 
 const defaultFormFields = {
     province: 'Camarines Norte',
@@ -105,10 +106,11 @@ const Projects = () => {
             </ul>
         </nav>
 
-        <div className="columns is-vcentered">
-            {status === "finished" ? <Fragment><h2 className='is-size-4 has-text-weight-bold column is-4'>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()} Projects</h2>
-            <FormSelect options={["All", ...years]} type="text" required id="year" onChange={handleChange} value={year} label="Year" additionalClasses="column is-2"/></Fragment> : <h2 className='is-size-4 has-text-weight-bold column is-6'>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()} Projects</h2>}
+            <h2 className='is-size-4 has-text-weight-bold column is-12'>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()} Projects
+            <Button additionalClasses="block is-success is-pulled-right" type="button" onClick={() => {navigate("/projects/new")}}>Create New Project</Button></h2>
 
+        <div className="columns is-vcentered">
+            {status === "finished" ? <FormSelect options={["All", ...years]} type="text" required id="year" onChange={handleChange} value={year} label="Year" additionalClasses="column is-2"/> : ""}
             <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...municipalities]} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...barangays]} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-2"/>

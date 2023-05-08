@@ -55,7 +55,7 @@ const SignInForm = () => {
     return (
         <div className='column'>
             <div className='columns mt-6'>
-            {modal !== "" ? <div className="modal has-text-centered is-active">
+            {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">

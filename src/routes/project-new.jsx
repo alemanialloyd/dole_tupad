@@ -18,7 +18,8 @@ const defaultFormFields = {
     days: '',
     status: 'pending',
     dailyWage: '',
-    max: 0
+    max: 0,
+    applicants: []
 }
 
 const ProjectNew = () => {
@@ -26,8 +27,8 @@ const ProjectNew = () => {
     const { municipalities, bicol, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, tagalog, talisay, vinzons } = useContext(StaticContext);
     const navigate = useNavigate();
     const [defaultDailyWage, setDefaultDailyWage] = useState(0);
-    const [formFields, setFormFields] = useState(defaultFormFields);
-    const { province, municipality, barangay, district, title, beneficiaries, budget, days, dailyWage, max } = formFields;
+    const [formFields, setFormFields] = useState({...defaultFormFields, "type": currentUser.data.type === "superadmin" ? "special" : "regular"});
+    const { province, municipality, barangay, district, title, beneficiaries, budget, days, dailyWage, max, type } = formFields;
     const [modal, setModal] = useState("");
     const [muns, setMuns] = useState([]);
 
@@ -180,7 +181,7 @@ const ProjectNew = () => {
 
     return (
         <div className='column is-8 is-offset-2 my-6'>
-            {modal !== "" ? <div className="modal has-text-centered is-active">
+            {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">
@@ -271,7 +272,7 @@ const ProjectNew = () => {
 
                     <FormInput type="text" required id="title" value={title} onChange={handleChange} label="Project Title *" additionalClasses="column is-6"/>
                     <FormInput type="number" step="0.01" required id="budget" value={budget} onChange={handleChange} label="Total Budget *" additionalClasses="column is-6"/>
-                    <FormInput type="number" required id="days" value={days} onChange={handleChange} label="Number of Days *" additionalClasses="column is-4"/>
+                    <FormInput type="number" min="10" max="30" required id="days" value={days} onChange={handleChange} label="Number of Days *" additionalClasses="column is-4"/>
                     <FormInput type="number" step="0.01" required id="dailyWage" value={dailyWage} onChange={handleChange} label="Daily Wage *" additionalClasses="column is-4"/>
                     <FormInput type="number" required id="beneficiaries" value={beneficiaries} max={max} min="1" onChange={handleChange} label={`Number of Beneficiaries (max = ${max}) *`} additionalClasses="column is-4"/>
                 </div>

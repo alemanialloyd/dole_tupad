@@ -14,6 +14,10 @@ const BeneficiaryItem = ({ beneficiary, index, handleApprove, created }) => {
     }
 
     const onClickHandler = () => {
+        if (handleApprove) {
+            handleApprove(id, "details");
+            return;
+        }
         navigate('/beneficiaries/' + beneficiary.id);
       }
 
@@ -24,17 +28,16 @@ const BeneficiaryItem = ({ beneficiary, index, handleApprove, created }) => {
             <td>{firstName}</td>
             <td>{middleName}</td>
             <td>{format(new Date(birthDate), "MMM dd, yyyy")}</td>
-            <td>{province}</td>
-            <td>{municipality}</td>
-            <td>{barangay}</td>
+            <td>{barangay + ", " + municipality + ", " + province}</td>
             {reg ?
                 <td>{format(reg, "hh:mm MMM dd, yyyy")}</td> : ""
             }
             <td className="has-text-centered">
             {handleApprove ? <Fragment>
                 <Button type="button" additionalClasses="is-success is-fullwidth"  onClick={()=> {handleApprove(id, "approved")}}>Approve</Button>
-                <Button type="button" additionalClasses="is-fullwidth mt-3" onClick={()=> {handleApprove(id, "disapproved")}}>Disapprove</Button>
-            </Fragment> : <Button type="button" onClick={onClickHandler}>Details</Button>}
+                <Button type="button" additionalClasses="is-fullwidth is-danger my-3" onClick={()=> {handleApprove(id, "disapproved")}}>Disapprove</Button>
+            </Fragment> : ""}
+            <Button type="button" onClick={onClickHandler} additionalClasses="is-fullwidth">Details</Button>
             </td>
         </tr>
     );

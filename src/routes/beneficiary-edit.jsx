@@ -26,7 +26,6 @@ const defaultFormFields = {
     beneficiaryTypeOthers: '',
     idType: 'Select',
     idTypeOthers: '',
-    idNumber: '',
     dependentName: '',
     interested: 'Select',
     skillsTraining: 'Select',
@@ -34,7 +33,8 @@ const defaultFormFields = {
     occupation: 'Select',
     occupationOthers: '',
     status: 'approved',
-    type: 'beneficiary'
+    type: 'beneficiary',
+    idNum: ''
 }
 
 const BeneficiaryEdit = () => {
@@ -45,8 +45,8 @@ const BeneficiaryEdit = () => {
 
     const [barangays, setbarangays] = useState([]);
     const [formFields, setFormFields] = useState(defaultFormFields);
-    const { firstName, lastName, middleName, extensionName, birthDate, gender, civilStatus, age, emailAddress, contactNumber, province, municipality, barangay, district,
-        beneficiaryType, beneficiaryTypeOthers, idType, idTypeOthers, dependentName, interested, skillsTraining, skillsTrainingOthers, occupation, occupationOthers, idNumber} = formFields;
+    const { idNum, firstName, lastName, middleName, extensionName, birthDate, gender, civilStatus, age, emailAddress, contactNumber, province, municipality, barangay, district,
+        beneficiaryType, beneficiaryTypeOthers, idType, idTypeOthers, dependentName, interested, skillsTraining, skillsTrainingOthers, occupation, occupationOthers} = formFields;
     const [modal, setModal] = useState("");
 
     useEffect(() => {
@@ -213,7 +213,7 @@ const BeneficiaryEdit = () => {
 
     return (
         <div className='column is-8 is-offset-2 my-6'>
-            {modal !== "" ? <div className="modal has-text-centered is-active">
+            {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">
@@ -255,7 +255,7 @@ const BeneficiaryEdit = () => {
                     <FormInput type="text" required id="dependentName" value={dependentName} onChange={handleChange} label="Dependent Name *" additionalClasses="column is-6"/>
                     <FormSelect options={["Barangay ID", "SSS", "Voter's ID", "Others"]} type="text" required id="idType" onChange={handleChange} value={idType} label="Type of ID *" additionalClasses={`${idType === "Others" ? "is-2" : "is-6"} column`}/>
                     {idType === "Others" ? <FormInput type="text" required id="idTypeOthers" value={idTypeOthers} onChange={handleChange} label="Please Specify" additionalClasses="column is-4"/> : ""}
-                    <FormInput type="text" required id="idNumber" value={idNumber} onChange={handleChange} label="ID Number *" additionalClasses="column is-6"/>
+                    <FormInput type="text" required id="idNum" value={idNum} onChange={handleChange} label="ID Number *" additionalClasses="column is-6"/>
                     <FormSelect options={["Underemployed/Self-Employed", "PWD", "Senior Citizen", "Former Rebels", "Former Violent Extremist Groups", "Indigenous People", "Others"]} type="text" required id="beneficiaryType" onChange={handleChange} value={beneficiaryType} label="Type of Beneficiary *" additionalClasses={`${beneficiaryType === "Others" ? "is-2" : "is-6"} column`}/>
                     {beneficiaryType === "Others" ? <FormInput type="text" required id="beneficiaryTypeOthers" value={beneficiaryTypeOthers} onChange={handleChange} label="Please Specify" additionalClasses="column is-4"/> : ""}
                     <FormSelect options={["Yes", "No"]} type="text" required id="interested" onChange={handleChange} value={interested} label="Interested in Skills/Training? *" additionalClasses="column is-6"/>

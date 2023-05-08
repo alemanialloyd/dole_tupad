@@ -27,6 +27,7 @@ const Project = () => {
     const { title, barangay, municipality, province, beneficiaries, budget, days, status, startedDate, dailyWage, district } = project;
     const navigate = useNavigate();
     const [beneficiariesList, setBeneficiariesList = () => []] = useState([]);
+    const [applicantsList, setApplicantsList = () => []] = useState([]);
     const [allBeneficiaries, setAllBeneficiaries = () => []] = useState([]);
     const [selected, setSelected] = useState([]);
     const [values, setValues] = useState([]);
@@ -48,46 +49,55 @@ const Project = () => {
 
     useEffect(() => {
         const bars = [];
-        municipality.forEach((mun) => {
-            switch(mun) {
-                case "Basud":
-                    bars.push(...basud);
-                    break;
-                case "Capalonga":
-                    bars.push(...capalonga);
-                    break;
-                case "Daet":
-                    bars.push(...daet);
-                    break;
-                case "Jose Panganiban":
-                    bars.push(...jpang);
-                    break;
-                case "Labo":
-                    bars.push(...labo);
-                    break;
-                case "Mercedes":
-                    bars.push(...mercedes);
-                    break;
-                case "Paracale":
-                    bars.push(...paracale);
-                    break;
-                case "San Lorenzo Ruiz":
-                    bars.push(...slr);
-                    break;
-                case "San Vicente":
-                    bars.push(...sv);
-                    break;
-                case "Sta Elena":
-                    bars.push(...se);
-                    break;
-                case "Talisay":
-                    bars.push(...talisay);
-                    break;
-                case "Vinzons":
-                    bars.push(...vinzons);
-                    break;
-            }
-        });
+        if (barangay.length === 0) {
+            municipality.forEach((mun) => {
+                switch(mun) {
+                    case "Basud":
+                        bars.push(...basud);
+                        break;
+                    case "Capalonga":
+                        bars.push(...capalonga);
+                        break;
+                    case "Daet":
+                        bars.push(...daet);
+                        break;
+                    case "Jose Panganiban":
+                        bars.push(...jpang);
+                        break;
+                    case "Labo":
+                        bars.push(...labo);
+                        break;
+                    case "Mercedes":
+                        bars.push(...mercedes);
+                        break;
+                    case "Paracale":
+                        bars.push(...paracale);
+                        break;
+                    case "San Lorenzo Ruiz":
+                        bars.push(...slr);
+                        break;
+                    case "San Vicente":
+                        bars.push(...sv);
+                        break;
+                    case "Sta Elena":
+                        bars.push(...se);
+                        break;
+                    case "Talisay":
+                        bars.push(...talisay);
+                        break;
+                    case "Vinzons":
+                        bars.push(...vinzons);
+                        break;
+                }
+            });
+        } else {
+            barangay.forEach((b) => {
+                bars.push(b.replaceAll(", Basud", "").replaceAll(", Daet", "")
+                .replaceAll(", Capalonga", "").replaceAll(", Jose Panganiban", "").replaceAll(", Mercedes", "").replaceAll(", Labo", "")
+                .replaceAll(", Paracale", "").replaceAll(", Sta Elena", "").replaceAll(", San Vicente", "").replaceAll(", San Lorenzo Ruiz", "")
+                .replaceAll(", Talisay", "").replaceAll(", Vinzons", ""))
+            })
+        }
         setBarangays(bars);
     }, [project]);
 
@@ -115,8 +125,6 @@ const Project = () => {
                 return 0;
             });
             setAllBeneficiaries(docs);
-
-            console.log(docs);
         };
 
         if (municipality && barangay) {
@@ -146,8 +154,23 @@ const Project = () => {
                 item.firstName.toLowerCase().includes(search.toLowerCase()) || item.middleName.toLowerCase().includes(search.toLowerCase())});
         }
 
-        setBeneficiariesList(fil);
+        setBeneficiariesList(fil.filter(item => {
+            const {last, id} = item;
+            return project.applicants.includes(id) ? last ? last.toDate() > yearAgo : false : true;
+        }));
     }, [search, filter, category, allBeneficiaries]);
+
+    useEffect(() => {
+        const yearAgo = new Date();
+        yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+
+        var fil = allBeneficiaries.filter((item) => {
+            const {last, id} = item;
+            return project.applicants.includes(id) ? last ? last.toDate() < yearAgo : true : false;
+        })
+
+        setApplicantsList(fil);
+    }, [allBeneficiaries])
 
     useEffect(() => {
         if (project.selected) {
@@ -216,7 +239,7 @@ const Project = () => {
                     const log = {"action": "Updated a project", "id": project.id, "type" : "project", "by" : currentUser.uid}
                     await createLog(log);
 
-                    setBeneficiariesList(beneficiariesList.filter(beneficiary => selected.includes(beneficiary.id)));
+                    setBeneficiariesList(allBeneficiaries.filter(beneficiary => selected.includes(beneficiary.id)));
                     setProject({...project, status: "ongoing", startedDate, selected})
                 } else {
                     setModal(response);
@@ -280,15 +303,17 @@ const Project = () => {
             const log = {"action": "Deleted a project", "id": project.id, "type" : "project", "by" : currentUser.uid}
             await createLog(log);
 
-            navigate("/projects/" + project.status);
+            navigate(-1);
         } else {
             setModal(res);
         }
     }
 
+    
+
     return (
         <div className='column is-8 is-offset-2  my-6'>
-        {modal !== "" ? <div className="modal has-text-centered is-active">
+        {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
             <div className="modal-background"></div>
             <div className="modal-content">
                 <header className="modal-card-head pt-6">
@@ -300,7 +325,7 @@ const Project = () => {
             </div>
         </div> : ""}
 
-            {confirm ? <div className="modal has-text-centered is-active">
+            {confirm ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
                     <header className="modal-card-head pt-6">
@@ -361,6 +386,12 @@ const Project = () => {
                     </thead>
                     
                     <tbody>
+                        {status === "pending" && category === "Unallocated" && applicantsList.map((beneficiary, index) => {
+                            return (
+                                <ProjectBeneficiaryItem onValueChange={onValueChange} value={values[index]} project={project} additionalClasses={`is-applicant ${selected.includes(beneficiary.id) ? "is-active" : ""}`} onAddHandler={onAddHandler} key={beneficiary.id} beneficiary={beneficiary} index={index}/>
+                            )
+                        })}
+
                         {beneficiariesList.map((beneficiary, index) => {
                         return (
                             <ProjectBeneficiaryItem onValueChange={onValueChange} value={values[index]} project={project} additionalClasses={selected.includes(beneficiary.id) ? "is-active" : ""} onAddHandler={onAddHandler} key={beneficiary.id} beneficiary={beneficiary} index={index}/>

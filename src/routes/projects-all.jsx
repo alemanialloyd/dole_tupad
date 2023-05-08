@@ -4,6 +4,7 @@ import { StaticContext } from "../context/static-context";
 import FormSelect from "../components/form-select";
 import { useLocation, useNavigate } from 'react-router-dom'
 import ProjectItem from "../components/project-item";
+import Button from '../components/button';
 
 const defaultFormFields = {
     province: 'Camarines Norte',
@@ -90,15 +91,17 @@ const AllProjects = () => {
     return (
         <div className='column is-8 is-offset-2  my-6'>
 
-        <nav className="breadcrumb mb-6">
+        {/* <nav className="breadcrumb mb-6">
             <ul>
                 <li><a onClick={() => {navigate("/")}}>Home</a></li>
                 <li className="is-active"><a aria-current="page">All Projects</a></li>
             </ul>
-        </nav>
+        </nav> */}
 
+            <h2 className='is-size-4 has-text-weight-bold column is-12'>All Projects
+            <Button additionalClasses="block is-success is-pulled-right" type="button" onClick={() => {navigate("/projects/new")}}>Create New Project</Button></h2>
+            
         <div className="columns is-vcentered">
-            <h2 className='is-size-4 has-text-weight-bold column is-6'>All Projects</h2>
             <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...municipalities]} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-2"/>
             <FormSelect options={["All", ...barangays]} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-2"/>
