@@ -113,8 +113,8 @@ const Navigation = () => {
           </a>
         </div>
       </div>
-    </Fragment> : <a className="navbar-item" onClick={() => onNavigate("/beneficiaries/" + currentUser.uid)}>
-            Profile
+    </Fragment> : <a className="navbar-item" onClick={() => onNavigate("/projects")}>
+            Projects
           </a>}
 
           <a className="navbar-item" onClick={() => onNavigate("/change-password")}>

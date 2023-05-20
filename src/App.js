@@ -35,7 +35,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigation/>}>
-        <Route index element={currentUser ? currentUser.data.type !== "beneficiary" ? <AllProjects/> : currentUser.data.status === "approved" ? <ProjectsApply/> : <Home/> : <Home/>}/>
+        <Route index element={currentUser ? currentUser.data.type !== "beneficiary" ? <AllProjects/> : currentUser.data.status === "approved" ? <Beneficiary/> : <Home/> : <Home/>}/>
         <Route path="/register" element={currentUser ? "" : <Register/>}/>
         <Route path="/signin" element={currentUser ? "" : <SignInForm/>}/>
         <Route path="/change-password" element={currentUser ? <ChangePassword/> : ""}/>
@@ -43,6 +43,7 @@ function App() {
         <Route path="/accounts" element={currentUser ? currentUser.data.type === "superadmin" ? <Accounts/> : "" : ""}/>
         <Route path="/accounts/new" element={currentUser ? currentUser.data.type === "superadmin" ? <AccountNew/> : "" : ""}/>
         <Route path="/accounts/:id/edit" element={currentUser ? currentUser.data.type === "superadmin" ? <AccountEdit/> : "" : ""}/>
+        <Route path="/projects" element={currentUser && currentUser.data.type === "beneficiary" ? <ProjectsApply/> : ""}/>
         <Route path="/projects/:id" element={currentUser ? <Project/> : ""}/>
         <Route path="/projects/:id/edit" element={currentUser ? currentUser.data.type === "superadmin" ? <ProjectEdit/> : "" : ""}/>
         <Route path="/projects/ongoing" element={currentUser ? currentUser.data.type === "beneficiary" ? "" : <Projects/> : ""}/>

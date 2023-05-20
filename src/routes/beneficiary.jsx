@@ -27,7 +27,7 @@ const Beneficiary = () => {
 
     useEffect(() => {
         const getDoc = async () => {
-            const doc = await getBeneficiaryDocument(id);
+            const doc = await getBeneficiaryDocument(id ? id : currentUser.uid);
             setBeneficiary(doc);
         }
         getDoc();
@@ -35,7 +35,7 @@ const Beneficiary = () => {
 
     useEffect(() => {
         const getDocs = async () => {
-            const docs = await getBeneficiaryProjectDocuments(id);
+            const docs = await getBeneficiaryProjectDocuments(id ? id : currentUser.uid);
             setProjects(docs);
         }
         getDocs();
@@ -143,9 +143,10 @@ const Beneficiary = () => {
                         <tr>
                             <th>No.</th>
                             <th>Project Title</th>
-                            <th>Status</th>
-                            <th>Location</th>
                             <th>Started Date</th>
+                            <th>Attendance</th>
+                            <th>Salary</th>
+                            <th>Status</th>
                             <th>Finished Date</th>
                             {currentUser && currentUser.data && currentUser.data.type !== "beneficiary" ? <th></th> : ""}
                         </tr>
@@ -154,7 +155,7 @@ const Beneficiary = () => {
                     <tbody>
                         {projects.map((project, index) => {
                         return (
-                            <BeneficiaryProjectItem key={project.id} project={project} index={index + 1} type={currentUser && currentUser.data && currentUser.data.type ? currentUser.data.type : ""}/>
+                            <BeneficiaryProjectItem uid={currentUser.uid} key={project.id} project={project} index={index + 1} type={currentUser && currentUser.data && currentUser.data.type ? currentUser.data.type : ""}/>
                         )
                     })}
                     </tbody>

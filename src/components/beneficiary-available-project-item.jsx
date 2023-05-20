@@ -8,7 +8,7 @@ const AvailableProjectItem = ({project, additionalClasses, uid, onClickHandler})
             <div className="card columns py-6 is-vcentered" style={{height: 350 + "px"}}>
                 <div className="card-content column">
                     <div className="content has-text-centered px-4 py-4">
-                        <span className="tag">{type === "special" ? "Special" : "Regular"}</span>
+                        <span className={`tag ${type === "special" ? "is-link" : "is-primary"}`}>{type === "special" ? "Special" : "Regular"}</span>
                         <h1 className='is-size-3'>{title}</h1>
                         {barangay.length > 0 ? barangay.join(" - ") : municipality.length > 0 ? municipality.join(", ") : district}
                         <div className="mt-3">
