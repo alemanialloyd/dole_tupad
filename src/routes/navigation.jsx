@@ -113,9 +113,30 @@ const Navigation = () => {
           </a>
         </div>
       </div>
-    </Fragment> : <a className="navbar-item" onClick={() => onNavigate("/projects")}>
-            Projects
-          </a>}
+    </Fragment> : 
+    <Fragment>
+      <div className="navbar-item has-dropdown is-hoverable">
+    <a className="navbar-link is-arrowless">
+      Projects
+    </a>
+
+    <div className="navbar-dropdown is-boxed">
+    <a className="navbar-item" onClick={() => onNavigate("/")}>
+        Available
+      </a>
+      <a className="navbar-item" onClick={() => onNavigate("/projects/ongoing")}>
+        Ongoing
+      </a>
+      <a className="navbar-item" onClick={() => onNavigate("/projects/finished")}>
+        Finished
+      </a>
+    </div>
+  </div>
+  <a className="navbar-item" onClick={() => onNavigate("/profile")}>
+            Profile
+          </a>
+          </Fragment>
+          }
 
           <a className="navbar-item" onClick={() => onNavigate("/change-password")}>
             Change Password

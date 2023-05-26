@@ -1,10 +1,11 @@
 import { useContext, useState, useEffect, Fragment } from 'react';
-import { getFinishedProjects, getProjectDocuments } from "../utils/firebase";
+import { getFinishedProjects, getProjectDocuments, getBeneficiaryProjectDocumentsByStatus } from "../utils/firebase";
 import { StaticContext } from "../context/static-context";
 import FormSelect from "../components/form-select";
 import { useLocation, useNavigate } from 'react-router-dom'
 import ProjectItem from "../components/project-item";
 import Button from '../components/button';
+import { UserContext } from "../context/user-context";
 
 const defaultFormFields = {
     province: 'Camarines Norte',
@@ -15,6 +16,7 @@ const defaultFormFields = {
 
 const Projects = () => {
     const location = useLocation();
+    const { currentUser } = useContext(UserContext);
     const { municipalities, basud, capalonga, daet, jpang, labo, mercedes, paracale, slr, sv, se, talisay, vinzons } = useContext(StaticContext);
     const [projects, setProjects = () => []] = useState([]);
     const [page, setPage] = useState(0);
@@ -27,7 +29,12 @@ const Projects = () => {
 
     useEffect(() => {
         async function getDocs() {
-            const docs = status === "finished" ? await getFinishedProjects(year, status, municipality, barangay) : await getProjectDocuments(status, municipality, barangay);
+            const docs = 
+            currentUser.data.type === "beneficiary"
+            ? await getBeneficiaryProjectDocumentsByStatus(status, currentUser.uid)
+            : status === "finished" 
+            ? await getFinishedProjects(year, status, municipality, barangay)
+            : await getProjectDocuments(status, municipality, barangay);
             setProjects(docs);
         };
         getDocs();
@@ -99,33 +106,38 @@ const Projects = () => {
     return (
         <div className='column is-8 is-offset-2  my-6'>
 
-        <nav className="breadcrumb mb-6">
+        {currentUser.data.type === "beneficiary" ? "" :
+            <nav className="breadcrumb mb-6">
             <ul>
                 <li><a onClick={() => {navigate("/")}}>Home</a></li>
                 <li className="is-active"><a aria-current="page">{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()} Projects</a></li>
             </ul>
         </nav>
+        }
+
 
             <h2 className='is-size-4 has-text-weight-bold column is-12'>{status.charAt(0).toUpperCase() + status.substring(1).toLowerCase()} Projects
-            <Button additionalClasses="block is-success is-pulled-right" type="button" onClick={() => {navigate("/projects/new")}}>Create New Project</Button></h2>
+            {currentUser.data.type === "beneficiary" ? "" : <Button additionalClasses="block is-success is-pulled-right" type="button" onClick={() => {navigate("/projects/new")}}>Create New Project</Button>}</h2>
 
-        <div className="columns is-vcentered">
-            {status === "finished" ? <FormSelect options={["All", ...years]} type="text" required id="year" onChange={handleChange} value={year} label="Year" additionalClasses="column is-2"/> : ""}
-            <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-2"/>
-            <FormSelect options={["All", ...municipalities]} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-2"/>
-            <FormSelect options={["All", ...barangays]} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-2"/>
-        </div>    
+            {currentUser.data.type === "beneficiary" ? "" :
+                <div className="columns is-vcentered">
+                    {status === "finished" ? <FormSelect options={["All", ...years]} type="text" required id="year" onChange={handleChange} value={year} label="Year" additionalClasses="column is-2"/> : ""}
+                    <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province" additionalClasses="column is-2"/>
+                    <FormSelect options={["All", ...municipalities]} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality" additionalClasses="column is-2"/>
+                    <FormSelect options={["All", ...barangays]} type="text" required id="barangay" onChange={handleChange} value={barangay} label="Barangay" additionalClasses="column is-2"/>
+                </div>    
+            }
 
             {projects.length > 0 ? 
             <Fragment>
-                {status === "finished" ? <div className="notification is-info py-5 mt-5">
+                {status === "finished" && currentUser.data.type !== "beneficiary" ? <div className="notification is-info py-5 mt-5">
                 Summary report is available for printing. <button className='button is-pulled-right is-small' onClick={() => {navigate("/summary-report", {state: {projects : projects}})}}>View Report</button>
                 </div> : ""}
                 <div className="mt-6 columns is-multiline">
                 {projects.map((project, index) => {
                     if (index >= (page * maxDocs) && index < maxDocs + (page * maxDocs)) {
                         return (
-                            <ProjectItem text={status === "pending" ? "Create" : "Details"} additionalClasses="column is-4" key={project.id} project={project}/>
+                            <ProjectItem userType={currentUser.data.type} text={status === "pending" ? "Create" : "Details"} additionalClasses="column is-4" key={project.id} project={project}/>
                         )
                     }
                 })}

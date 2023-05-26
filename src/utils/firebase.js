@@ -470,6 +470,27 @@ const firebaseConfig = {
 
     return docs;
   }
+
+  export const getBeneficiaryProjectDocumentsByStatus = async (status, id) => {
+    const docRef = collection(db, "Projects");
+    const docs = [];
+    var q = query(docRef, where("status", "==", status), where("selected", "array-contains", id), orderBy("created", "desc"));
+
+    try {
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          data["id"] = doc.id;
+          docs.push(data);
+      });
+
+    } catch (error) {
+      console.log("error", error.message);
+    }
+
+    return docs;
+  }
   
   export const updateProjectApplicants = async (id, uid, action) => {
     const userDocRef = doc(db, 'Projects', id);

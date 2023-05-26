@@ -1,7 +1,8 @@
+import { Fragment } from "react";
 import Button from "./button";
 import {useNavigate} from 'react-router-dom';
 
-const ProjectItem = ({text, project, additionalClasses, all}) => {
+const ProjectItem = ({text, userType, project, additionalClasses, all}) => {
     const { title, barangay, municipality, province, beneficiaries, budget, days, dailyWage, district, status, type } = project;
     const navigate = useNavigate();
 
@@ -26,8 +27,10 @@ const ProjectItem = ({text, project, additionalClasses, all}) => {
                                 <span className="icon-text">
                                     <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="9" r="4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></circle><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 19c0-3.314-3.134-6-7-6s-7 2.686-7 6m13-6a4 4 0 1 0-3-6.646"></path><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M22 19c0-3.314-3.134-6-7-6-.807 0-2.103-.293-3-1.235"></path></svg></span> 
                                     <span className="has-text-weight-medium mr-4">{beneficiaries}</span> 
+                                    {userType !== "beneficiary" ? <Fragment>
                                     <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10V8a2 2 0 0 1 2-2h2m-4 4c1.333 0 4-.8 4-4m-4 4v4m18-4V8a2 2 0 0 0-2-2h-2m4 4c-1.333 0-4-.8-4-4m4 4v4M7 6h10m4 8v2a2 2 0 0 1-2 2h-2m4-4c-1.333 0-4 .8-4 4m0 0H7m-4-4v2a2 2 0 0 0 2 2h2m-4-4c1.333 0 4 .8 4 4"></path><circle cx="12" cy="12" r="2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></circle></svg></span> 
                                     <span className="has-text-weight-medium mr-4">P {parseFloat(budget).toFixed(2)}</span>
+                                    </Fragment> : ""}
                                     <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 9v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9M4 9V7a2 2 0 0 1 2-2h2M4 9h16m0 0V7a2 2 0 0 0-2-2h-2m0 0V3m0 2H8m0-2v2"></path></svg></span> 
                                     <span className="has-text-weight-medium mr-4">{days}</span>
                                     
@@ -35,7 +38,7 @@ const ProjectItem = ({text, project, additionalClasses, all}) => {
                                     <span className="has-text-weight-medium">P {parseFloat(dailyWage).toFixed(2)}</span>
                                 </span>
                             </div>
-                            <Button additionalClasses="mt-5" type="button" onClick={onClickHandler}>{text}</Button>
+                            {userType !== "beneficiary" ? <Button additionalClasses="mt-5" type="button" onClick={onClickHandler}>{text}</Button> : ""}
                     </div>
                 </div>
             </div>

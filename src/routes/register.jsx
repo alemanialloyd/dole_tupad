@@ -4,6 +4,7 @@ import Button from '../components/button';
 import FormSelect from '../components/form-select';
 import {useNavigate} from 'react-router-dom';
 import { StaticContext } from "../context/static-context";
+import background from '../background.png';
 import { checkExistingBeneficiary, createAuthUserWithEmailAndPassword, createBeneficiaryDocument, createLog, createUserDocument, getIdNumber } from '../utils/firebase';
 
 const defaultFormFields = {
@@ -47,6 +48,7 @@ const Register = () => {
     const { idNum, password, confirmPassword, firstName, lastName, middleName, extensionName, birthDate, gender, civilStatus, age, emailAddress, contactNumber, province, municipality, barangay, district,
         beneficiaryType, beneficiaryTypeOthers, idType, idTypeOthers, dependentName, interested, skillsTraining, skillsTrainingOthers, occupation, occupationOthers} = formFields;
     const [modal, setModal] = useState("");
+    const [ageModal, setAgeModal] = useState("");
 
     const resetFormFields = () => {
         setFormFields(defaultFormFields);
@@ -198,7 +200,35 @@ const Register = () => {
     }
 
     return (
-        <div className='column is-8 is-offset-2 my-6'>
+        <div className='column' style={{backgroundImage: "url(" + background + ")", backgroundPosition: "center", backgroundSize: "cover"}}>
+            <div className='column is-8 is-offset-2 my-6'>
+            {ageModal === "" ? <div className="modal custom-modal has-text-centered is-active">
+                <div className="modal-background"></div>
+                <div className="modal-content">
+                    <header className="modal-card-head is-block pt-6">
+                        <p className="modal-card-title mb-2">Type in your birthdate</p>
+                        <p>Only 18 years old and above & 75 years old and below may register.</p>
+                    </header>
+                    <footer className="modal-card-foot has-text-centered is-block pb-5">
+                    <FormInput type="date" required id="birthDate" value={birthDate} onChange={handleChange} additionalClasses="column is-6 is-offset-3"/>
+                        
+                    <button className="button mt-4 mr-4" onClick={() => {navigate(-1)}}>Cancel</button>
+                        <button className="button mt-4 is-info" onClick={() => {
+                            if (parseInt(age) > 18) {
+                                if (parseInt(age) < 76) {
+                                    setModal("");
+                                    setAgeModal(age);
+                                } else {
+                                    setModal("Registrants must be 75 years old and below.")
+                                }
+                            } else {
+                                setModal("Registrants must be 18 years old and above.")
+                            }
+                        }}>OK</button>
+                    </footer>
+                </div>
+            </div>
+            : ""}
             {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
                 <div className="modal-content">
@@ -221,7 +251,7 @@ const Register = () => {
                     <FormInput type="text" id="extensionName" value={extensionName} onChange={handleChange} label="Name Extension" additionalClasses="column is-6"/>
                     <FormSelect options={["Male", "Female"]} type="text" required id="gender" onChange={handleChange} value={gender} label="Sex/Gender *" additionalClasses="column is-6"/>
                     <FormSelect options={["Single", "Married", "Widowed", "Separated", "Others"]} type="text" required id="civilStatus" onChange={handleChange} value={civilStatus} label="Civil Status *" additionalClasses="column is-6"/>
-                    <FormInput type="date" required id="birthDate" value={birthDate} onChange={handleChange} label="Date of Birth *" additionalClasses="column is-6"/>
+                    <FormInput type="date" disabled required id="birthDate" value={birthDate} onChange={handleChange} label="Date of Birth *" additionalClasses="column is-6"/>
                     <FormInput type="number" disabled required id="age" value={age} onChange={handleChange} label="Age" additionalClasses="column is-6"/>
                     <FormSelect options={["Camarines Norte"]} type="text" required id="province" onChange={handleChange} value={province} label="Province *" additionalClasses="column is-6"/>
                     <FormSelect options={municipalities} type="text" required id="municipality" onChange={handleChange} value={municipality} label="Municipality *" additionalClasses="column is-6"/>
@@ -242,9 +272,14 @@ const Register = () => {
                     <FormInput required type="email" id="emailAddress" value={emailAddress} onChange={handleChange} label="Email Address *" additionalClasses="column is-6"/>
                     <FormInput required type="password" id="password" value={password} onChange={handleChange} label="Password *" additionalClasses="column is-6"/>
                     <FormInput required type="password" id="confirmPassword" value={confirmPassword} onChange={handleChange} label="Confirm Password *" additionalClasses="column is-6"/>
+                    <label className="checkbox px-4 my-4">
+                    <input type="checkbox" required className='mr-4'/>
+                        By submitting this form, I/we (as “Data Subject”) grant my/our free, voluntary and unconditional consent to the collection and processing of all Personal Data.
+                    </label>
                 </div>
                 <Button type="submit" additionalClasses="is-info block">Register</Button>
                 </form>
+        </div>
         </div>
     )
 }

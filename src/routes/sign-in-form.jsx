@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import FormInput from '../components/form-input';
 import Button from '../components/button';
 import {useNavigate} from 'react-router-dom';
+import background from '../background.png';
 
 const defaultFormFields = {
     email: '',
@@ -53,7 +54,7 @@ const SignInForm = () => {
     }
 
     return (
-        <div className='column'>
+        <div className='column' style={{backgroundImage: "url(" + background + ")", backgroundPosition: "center", backgroundSize: "cover", minHeight:`calc(100vh - 76px)`}}>
             <div className='columns mt-6'>
             {modal !== "" ? <div className="modal custom-modal has-text-centered is-active">
                 <div className="modal-background"></div>
